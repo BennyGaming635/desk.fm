@@ -1,4 +1,4 @@
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QPixmap
 
 from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout,
@@ -14,6 +14,11 @@ class MusicUI(QWidget):
         
         self.setWindowTitle("DeskFM")
         self.setMinimumSize(900, 600)
+
+        self.cover = QLabel()
+        self.cover.setFixedSize(200, 200)
+        self.cover.setStyleSheet("background-color: #222; border-radius: 10px;")
+        self.cover.setScaledContents(True)
 
         self.songs = []
 
@@ -32,6 +37,7 @@ class MusicUI(QWidget):
         self.sidebar.addStretch()
 
         main_layout = QVBoxLayout()
+        main_layout.addWidget(self.cover)
 
         self.now_playing = QLabel("Nothing is playing")
         self.now_playing.setStyleSheet("font-size: 18px;")
@@ -81,10 +87,18 @@ class MusicUI(QWidget):
 
     def load_songs(self):
         files, _ = QFileDialog.getOpenFileNames(self, "Select Music Files", "", "Audio Files (*.mp3 *.wav *.ogg)")
+
         for f in files:
-            self.songs.append(f)
-            item = QListWidgetItem(f.split("/")[-1])
-            self.list_widget.addItem(item)
+            cover, _ = QFileDialog.getOpenFileName(
+                self, "Select Cover (Cancel for default)", "", "Image Files (*.png *.jpg *.jpeg)"
+            )
+            self.songs.append({
+                "path": f,
+                "name": f.split("/")[-1],
+                "cover": cover if cover else None
+            })
+
+            self.list_widget.addItem(f.split("/")[-1])
 
     def play_selected(self):
         item = self.list_widget.currentItem()
@@ -94,10 +108,16 @@ class MusicUI(QWidget):
         index = self.list_widget.currentRow()
         song = self.songs[index]
 
-        self.player.load(song)
+        self.player.load(song["path"])
         self.player.play()
 
-        self.now_playing.setText(f"Now Playing: {item.text()}")
+        self.now_playing.setText(f"Now Playing: {song['name']}")
+
+        if song["cover"]:
+            pixmap = QPixmap(song["cover"])
+            self.cover.setPixmap(pixmap)
+        else:
+            self.cover.setPixmap(QPixmap())
 
     def dark_theme(self):
         return """
