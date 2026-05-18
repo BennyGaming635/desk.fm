@@ -98,11 +98,11 @@ class MusicUI(QWidget):
 
             self.songs.append({
                 "path": f,
-                "name": os.path.basename(f),
+                "name": os.path.splitext(os.path.basename(f))[0],
                 "cover": cover
             })
 
-            self.list_widget.addItem(os.path.basename(f))
+            self.list_widget.addItem(self.songs[-1]["name"])
 
     def play_selected(self):
         item = self.list_widget.currentItem()
