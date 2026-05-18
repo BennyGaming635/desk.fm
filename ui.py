@@ -179,7 +179,7 @@ class MusicUI(QWidget):
             
             QPushButton:hover {
                 background-color: #222;
-                border-radius: 8px;
+                border-radius: 4px;
             }
 
             QListWidget {
@@ -189,8 +189,8 @@ class MusicUI(QWidget):
             }
 
             QListWidget::item {
-                padding: 10px;
-                border-radius: 6px;
+                padding: 4px;
+                border-radius: 4px;
             }
 
             QListWidget::item:selected {
