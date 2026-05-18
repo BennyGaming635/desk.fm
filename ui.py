@@ -43,12 +43,6 @@ class MusicUI(QWidget):
         self.timer.timeout.connect(self.update_progress)
         self.timer.start()
 
-        events = self.player.player.event_manager()
-        events.event_attach(
-            self.player.vlc.EventType.MediaPlayerEndReached,
-            self.song_finished
-        )
-
         main_layout = QVBoxLayout()
         main_layout.addWidget(self.cover)
 
@@ -176,9 +170,6 @@ class MusicUI(QWidget):
         if next_index < len(self.songs):
             self.list_widget.setCurrentRow(next_index)
             self.play_selected()
-
-    def song_finished(self, event):
-        QTimer.singleShot(0, self.next_song)
 
     def dark_theme(self):
         return """
