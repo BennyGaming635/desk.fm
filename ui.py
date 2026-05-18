@@ -7,6 +7,9 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QSize
 
+from utils import extract_cover_image
+import os
+
 class MusicUI(QWidget):
     def __init__(self, player):
         super().__init__()
@@ -86,19 +89,20 @@ class MusicUI(QWidget):
         self.setStyleSheet(self.dark_theme())
 
     def load_songs(self):
-        files, _ = QFileDialog.getOpenFileNames(self, "Select Music Files", "", "Audio Files (*.mp3 *.wav *.ogg)")
+        files, _ = QFileDialog.getOpenFileNames(
+            self, "Import Music", "", "Audio Files (*.mp3 *.wav *.ogg)"
+        )
 
         for f in files:
-            cover, _ = QFileDialog.getOpenFileName(
-                self, "Select Cover (Cancel for default)", "", "Image Files (*.png *.jpg *.jpeg)"
-            )
+            cover = extract_cover_image(f)
+
             self.songs.append({
                 "path": f,
-                "name": f.split("/")[-1],
-                "cover": cover if cover else None
+                "name": os.path.basename(f),
+                "cover": cover
             })
 
-            self.list_widget.addItem(f.split("/")[-1])
+            self.list_widget.addItem(os.path.basename(f))
 
     def play_selected(self):
         item = self.list_widget.currentItem()
