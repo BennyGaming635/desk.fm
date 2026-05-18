@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout,
     QPushButton, QListWidget, QLabel,
     QFileDialog, QSlider, QListWidgetItem,
-    QDialog, QSizePolicy
+    QDialog, QSizePolicy, QLineEdit
 )
 from PySide6.QtCore import Qt, QSize, QTimer
 from utils import extract_cover_image
@@ -27,6 +27,10 @@ class MusicUI(QWidget):
         self.cover.setStyleSheet("background-color: #222; border-radius: 10px;")
         self.cover.setScaledContents(True)
 
+        self.search_bar = QLineEdit()
+        self.search_bar.setPlaceholderText("Search songs...")
+        self.search_bar.textChanged.connect(self.search_library)
+
         self.songs = []
 
         root = QHBoxLayout()
@@ -40,7 +44,6 @@ class MusicUI(QWidget):
 
         self.sidebar.addWidget(self.title)
         self.sidebar.addStretch()
-
         self.sidebar.addWidget(self.title)
         self.timer = QTimer()
         self.timer.setInterval(500)
@@ -58,6 +61,7 @@ class MusicUI(QWidget):
 
         main_layout.addWidget(self.now_playing)
         main_layout.addWidget(self.list_widget)
+        main_layout.addWidget(self.search_bar)
 
         controls = QHBoxLayout()
 
@@ -119,6 +123,7 @@ class MusicUI(QWidget):
 
     def load_library(self):
         self.songs = []
+        self.search_library("")
         self.list_widget.clear()
 
         rows = get_all_songs()
@@ -131,6 +136,21 @@ class MusicUI(QWidget):
             })
 
             self.list_widget.addItem(title)
+
+    def search_library(self, text):
+        self.list_widget.clear()
+        rows = get_all_songs()
+        text = text.lower().strip()
+        self.songs = []
+        for path, title, aartist, album, cover in rows:
+            haystack = f"{title} {aartist} {album}".lower()
+            if text in haystack:
+                self.songs.append({
+                    "path": path,
+                    "name": title,
+                    "cover": cover
+                })
+                self.list_widget.addItem(title)
 
     def seek_position(self, value):
         if self.player.player:
