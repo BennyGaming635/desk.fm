@@ -90,3 +90,50 @@ class MusicUI(QWidget):
         self.player.play()
 
         self.now_playing.setText(f"Now Playing: {item.text()}")
+
+    def dark_theme(self):
+        return """
+            QWidget {
+                background-color: #121212;
+                color: #FFFFFF;
+                font-family: Arial, sans-serif;
+            }
+            
+            QPushButton {
+                background-color: #1DB954;
+                border: none;
+                padding: 8px;
+                border-radius: 6px;
+            }
+            
+            QPushButton:hover {
+                background-color: #1ED760;
+            }
+
+            QListWidget {
+                background-color: #181818;
+                border: none;
+                padding: none;
+            }
+
+            QListWidget::item {
+                padding: 10px;
+                border-radius: 6px;
+            }
+
+            QListWidget::item:selected {
+                background-color: #333333;
+            }
+
+            QSlider::groove:horizontal {
+                height: 6px;
+                background: #333;
+                border-radius: 3px;
+            }
+
+            QSlider::handle:horizontal {
+                width: 12px;
+                background: #1DB954;
+                border-radius: 6px;
+            }
+            """
