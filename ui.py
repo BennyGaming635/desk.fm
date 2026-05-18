@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout,
     QPushButton, QListWidget, QLabel,
     QFileDialog, QSlider, QListWidgetItem,
-    QDialog
+    QDialog, QSizePolicy
 )
 from PySide6.QtCore import Qt, QSize, QTimer
 from utils import extract_cover_image
@@ -34,18 +34,22 @@ class MusicUI(QWidget):
 
         self.title = QLabel("DeskFM")
         self.title.setStyleSheet("font-size: 22px; font-weight: bold;")
-
         self.btn_load = QPushButton("Import Music")
         self.btn_load.clicked.connect(self.load_songs)
+        self.sidebar.addWidget(self.title)
+        self.sidebar.addWidget(self.btn_load)
 
-        self.btn_settings = QPushButton("Settings")
+        self.sidebar.addStretch()
+        
+        self.btn_settings = QPushButton()
+        self.btn_settings.setIcon(QIcon("assets/icons/settings.svg"))
+        self.btn_settings.setIconSize(QSize(24, 24))
+        self.btn_settings.setFixedSize(40, 40)
         self.btn_settings.clicked.connect(self.open_settings)
+        self.sidebar.addWidget(self.btn_settings, alignment=Qt.AlignLeft)
 
         self.sidebar.addWidget(self.title)
         self.sidebar.addWidget(self.btn_load)
-        self.sidebar.addWidget(self.btn_settings)
-        self.sidebar.addStretch()
-
         self.timer = QTimer()
         self.timer.setInterval(500)
         self.timer.timeout.connect(self.update_progress)
