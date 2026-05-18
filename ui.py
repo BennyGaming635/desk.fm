@@ -2,7 +2,8 @@ from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout,
     QPushButton, QListWidget, QLabel,
-    QFileDialog, QSlider, QListWidgetItem
+    QFileDialog, QSlider, QListWidgetItem,
+    QDialog
 )
 from PySide6.QtCore import Qt, QSize, QTimer
 from utils import extract_cover_image
