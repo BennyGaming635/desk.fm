@@ -11,6 +11,8 @@ class MusicUI(QWidget):
         self.setWindowTitle("DeskFM")
         self.layout = QVBoxLayout()
         self.setMinimumSize(500, 400)
+        self.list_widget = QListWidget()
+        self.layout.addWidget(self.list_widget)
 
         self.label = QLabel("No song loaded")
         self.layout.addWidget(self.label)
