@@ -11,6 +11,7 @@ import os
 import vlc
 from importwizard import ImportWizard
 from settings import SettingsDialog, get_theme
+from fs import FullScreenPlayer
 from library import add_song, get_all_songs
 
 
@@ -28,6 +29,7 @@ class MusicUI(QWidget):
         self.cover.setScaledContents(True)
 
         self.songs = []
+        self.fullscreen_player = FullScreenPlayer()
 
         root = QHBoxLayout()
         self.sidebar = QVBoxLayout()
@@ -79,6 +81,10 @@ class MusicUI(QWidget):
         self.btn_load.setFixedSize(30, 30)
         self.btn_load.clicked.connect(self.load_songs)
         self.sidebar.addWidget(self.btn_load, alignment=Qt.AlignLeft)
+        self.btn_fullscreen = QPushButton()
+        self.btn_fullscreen.setIcon(QIcon("assets/icons/fullscreen.svg"))
+        self.btn_fullscreen.setIconSize(QSize(28, 28))
+        self.btn_fullscreen.setFixedSize(30, 30)
 
         self.btn_play.setIconSize(QSize(28, 28))
         self.btn_pause.setIconSize(QSize(28, 28))
@@ -195,6 +201,15 @@ class MusicUI(QWidget):
                 "Unknown Album",
                 cover
             )
+
+    def open_fullscreen(self):
+        item = self.list_widget.currentItem()
+        if not item:
+            return
+        index = self.list_widget.currentRow()
+        song = self.songs[index]
+        self.fullscreen_player.update_song(song["name"], song["cover"])
+        self.fullscreen_player.showFullScreen()
 
     def play_selected(self):
         item = self.list_widget.currentItem()
