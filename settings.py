@@ -70,7 +70,7 @@ class SettingsDialog(QDialog):
         self.update_btn = QPushButton("Check for Updates")
 
         self.save_btn.clicked.connect(self.save)
-        self.update_btn.clicked.connect(self.check_updates)
+        self.update_btn.clicked.connect(self.check_update)
 
         layout.addWidget(self.label)
         layout.addWidget(self.combo)
