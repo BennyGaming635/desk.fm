@@ -127,7 +127,7 @@ class MusicUI(QWidget):
     def load_songs(self):
         wizard = ImportWizard(self)
 
-        if wizard.exec() == QDialog.Accepted:
+        if wizard.exec() != QDialog.Accepted:
             return
         
         files = wizard.selected_files
