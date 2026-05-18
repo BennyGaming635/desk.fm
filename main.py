@@ -3,8 +3,10 @@ from PySide6.QtWidgets import QApplication
 from player import MusicPlayer
 from ui import MusicUI
 from settings import check_github_update
+from library import init_db
 
 if __name__ == "__main__":
+    init_db()
     app = QApplication(sys.argv)
     player = MusicPlayer()
     window = MusicUI(player)
