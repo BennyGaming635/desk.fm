@@ -50,8 +50,8 @@ class MusicUI(QWidget):
         self.btn_pause.setIcon(QIcon("assets/icons/pause.svg"))
         self.btn_play.setIcon(QIcon("assets/icons/play.svg"))
 
-        self.btn_play.setIconSize(Qt.QSize(28, 28))
-        self.btn_pause.setIconSize(Qt.QSize(28, 28))
+        self.btn_play.setIconSize(QSize(28, 28))
+        self.btn_pause.setIconSize(QSize(28, 28))
 
         self.btn_play.clicked.connect(self.play_selected)
         self.btn_pause.clicked.connect(self.player.pause)
