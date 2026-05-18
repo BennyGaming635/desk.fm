@@ -6,7 +6,7 @@ class FullScreenPlayer(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Now Playing")
-        self.showFullScreen()
+        self.hide()
 
         self.layout = QVBoxLayout()
         self.layout.setAlignment(Qt.AlignCenter)
