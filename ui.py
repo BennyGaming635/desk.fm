@@ -33,16 +33,15 @@ class MusicUI(QWidget):
         self.sidebar = QVBoxLayout()
 
         self.title = QLabel("DeskFM")
-        self.title.setStyleSheet("font-size: 22px; font-weight: bold;")
-        self.btn_load = QPushButton("Import Music")
-        self.btn_load.clicked.connect(self.load_songs)
-        self.sidebar.addWidget(self.title)
-        self.sidebar.addWidget(self.btn_load)
-
-        self.sidebar.addStretch(1)
+        self.title.setStyleSheet("""
+            font-size: 22px;
+            font-weight: bold;
+        """)
 
         self.sidebar.addWidget(self.title)
-        self.sidebar.addWidget(self.btn_load)
+        self.sidebar.addStretch()
+
+        self.sidebar.addWidget(self.title)
         self.timer = QTimer()
         self.timer.setInterval(500)
         self.timer.timeout.connect(self.update_progress)
@@ -67,12 +66,19 @@ class MusicUI(QWidget):
 
         self.btn_pause.setIcon(QIcon("assets/icons/pause.svg"))
         self.btn_play.setIcon(QIcon("assets/icons/play.svg"))
+
         self.btn_settings = QPushButton()
         self.btn_settings.setIcon(QIcon("assets/icons/settings.svg"))
         self.btn_settings.setIconSize(QSize(28, 28))
         self.btn_settings.setFixedSize(30, 30)
         self.btn_settings.clicked.connect(self.open_settings)
         self.sidebar.addWidget(self.btn_settings, alignment=Qt.AlignLeft)
+        self.btn_load = QPushButton()
+        self.btn_load.setIcon(QIcon("assets/icons/import.svg"))
+        self.btn_load.setIconSize(QSize(28, 28))
+        self.btn_load.setFixedSize(30, 30)
+        self.btn_load.clicked.connect(self.load_songs)
+        self.sidebar.addWidget(self.btn_load, alignment=Qt.AlignLeft)
 
         self.btn_play.setIconSize(QSize(28, 28))
         self.btn_pause.setIconSize(QSize(28, 28))
