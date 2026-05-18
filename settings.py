@@ -13,7 +13,7 @@ THEMES = {
         "accent": "#1DB954",
     },
     "Blueberry Blue": {
-        "accent": "3B82F6",
+        "accent": "#343deb",
     },
     "Bombastic Orange": {
         "accent": "#F97316"
