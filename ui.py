@@ -1,10 +1,11 @@
 from PySide6.QtGui import QIcon
+
 from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout,
     QPushButton, QListWidget, QLabel,
     QFileDialog, QSlider, QListWidgetItem
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 
 class MusicUI(QWidget):
     def __init__(self, player):
