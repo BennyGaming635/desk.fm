@@ -85,6 +85,8 @@ class MusicUI(QWidget):
         self.btn_fullscreen.setIcon(QIcon("assets/icons/fullscreen.svg"))
         self.btn_fullscreen.setIconSize(QSize(28, 28))
         self.btn_fullscreen.setFixedSize(30, 30)
+        self.btn_fullscreen.clicked.connect(self.open_fullscreen)
+        self.sidebar.addWidget(self.btn_fullscreen, alignment=Qt.AlignLeft)
 
         self.btn_play.setIconSize(QSize(28, 28))
         self.btn_pause.setIconSize(QSize(28, 28))
