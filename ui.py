@@ -11,12 +11,14 @@ import os
 import vlc
 from importwizard import ImportWizard
 from settings import SettingsDialog, get_theme
+from library import add_song, get_all_songs
+
 
 class MusicUI(QWidget):
     def __init__(self, player):
         super().__init__()
         self.player = player
-        
+
         self.setWindowTitle("DeskFM")
         self.setMinimumSize(900, 600)
 
@@ -28,14 +30,14 @@ class MusicUI(QWidget):
         self.songs = []
 
         root = QHBoxLayout()
-
         self.sidebar = QVBoxLayout()
 
         self.title = QLabel("DeskFM")
         self.title.setStyleSheet("font-size: 22px; font-weight: bold;")
-        
+
         self.btn_load = QPushButton("Import Music")
         self.btn_load.clicked.connect(self.load_songs)
+
         self.btn_settings = QPushButton("Settings")
         self.btn_settings.clicked.connect(self.open_settings)
 
@@ -43,8 +45,8 @@ class MusicUI(QWidget):
         self.sidebar.addWidget(self.btn_load)
         self.sidebar.addWidget(self.btn_settings)
         self.sidebar.addStretch()
-        
-        self.timer = QTimer ()
+
+        self.timer = QTimer()
         self.timer.setInterval(500)
         self.timer.timeout.connect(self.update_progress)
         self.timer.start()
@@ -82,6 +84,7 @@ class MusicUI(QWidget):
         self.volume.setRange(0, 100)
         self.volume.setValue(80)
         self.volume.valueChanged.connect(self.player.set_volume)
+
         self.progress = QSlider(Qt.Horizontal)
         self.progress.setRange(0, 1000)
         self.progress.sliderMoved.connect(self.seek_position)
@@ -92,21 +95,34 @@ class MusicUI(QWidget):
         controls.addWidget(QLabel("Volume"))
         controls.addWidget(self.volume)
         controls.addWidget(self.progress)
-
         main_layout.addLayout(controls)
-
         root.addLayout(self.sidebar, 1)
         root.addLayout(main_layout, 3)
-
         self.setLayout(root)
-
         self.apply_theme()
+        self.load_library()
+
+    def load_library(self):
+        self.songs = []
+        self.list_widget.clear()
+
+        rows = get_all_songs()
+
+        for path, title, artist, album, cover in rows:
+            self.songs.append({
+                "path": path,
+                "name": title,
+                "cover": cover
+            })
+
+            self.list_widget.addItem(title)
 
     def seek_position(self, value):
         if self.player.player:
             duration = self.player.player.get_length()
             if duration > 0:
                 self.player.player.set_time(int((value / 1000) * duration))
+
 
     def update_progress(self):
         try:
@@ -125,6 +141,7 @@ class MusicUI(QWidget):
             state = self.player.player.get_state()
             if state == self.player.vlc.State.Ended:
                 self.next_song()
+
         except Exception as e:
             print(e)
 
@@ -133,25 +150,34 @@ class MusicUI(QWidget):
 
         if wizard.exec() != QDialog.Accepted:
             return
-        
+
         files = wizard.selected_files
 
         for f in files:
             cover = extract_cover_image(f)
+            title = os.path.splitext(os.path.basename(f))[0]
 
             self.songs.append({
                 "path": f,
-                "name": os.path.splitext(os.path.basename(f))[0],
+                "name": title,
                 "cover": cover
             })
 
-            self.list_widget.addItem(self.songs[-1]["name"])
+            self.list_widget.addItem(title)
+
+            add_song(
+                f,
+                title,
+                "Unknown Artist",
+                "Unknown Album",
+                cover
+            )
 
     def play_selected(self):
         item = self.list_widget.currentItem()
         if not item:
             return
-        
+
         index = self.list_widget.currentRow()
         song = self.songs[index]
 
@@ -167,6 +193,10 @@ class MusicUI(QWidget):
         else:
             self.cover.setPixmap(QPixmap())
 
+
+    # -------------------------
+    # NEXT SONG
+    # -------------------------
     def next_song(self):
         current = self.list_widget.currentRow()
         next_index = current + 1
@@ -176,18 +206,23 @@ class MusicUI(QWidget):
             self.progress.setValue(0)
             self.play_selected()
 
+
+    # -------------------------
+    # SETTINGS
+    # -------------------------
     def open_settings(self):
         dlg = SettingsDialog(self)
         if dlg.exec():
             self.apply_theme()
 
+
     def apply_theme(self):
         accent = get_theme()["accent"]
 
         self.setStyleSheet(f"""
-             QWidget {{
-            background-color: #121212;
-            color: white;
+            QWidget {{
+                background-color: #121212;
+                color: white;
             }}
 
             QPushButton {{
@@ -217,49 +252,3 @@ class MusicUI(QWidget):
                 background-color: {accent};
             }}
         """)
-    
-    def dark_theme(self):
-        return """
-            QWidget {
-                background-color: #121212;
-                color: #FFFFFF;
-                font-family: Arial, sans-serif;
-            }
-            
-            QPushButton {
-                background-color: transparent;
-                border: none;
-            }
-            
-            QPushButton:hover {
-                background-color: #222;
-                border-radius: 4px;
-            }
-
-            QListWidget {
-                background-color: #181818;
-                border: none;
-                padding: none;
-            }
-
-            QListWidget::item {
-                padding: 4px;
-                border-radius: 4px;
-            }
-
-            QListWidget::item:selected {
-                background-color: #333333;
-            }
-
-            QSlider::groove:horizontal {
-                height: 6px;
-                background: #333;
-                border-radius: 3px;
-            }
-
-            QSlider::handle:horizontal {
-                width: 12px;
-                background: #1DB954;
-                border-radius: 6px;
-            }
-            """
