@@ -85,6 +85,9 @@ class MusicUI(QWidget):
         self.volume.setValue(80)
         self.volume.valueChanged.connect(self.player.set_volume)
 
+
+        self.current_time = QLabel("00:00")
+        self.total_time = QLabel("00:00")
         self.progress = QSlider(Qt.Horizontal)
         self.progress.setRange(0, 1000)
         self.progress.sliderMoved.connect(self.seek_position)
@@ -92,9 +95,12 @@ class MusicUI(QWidget):
         controls.addWidget(self.btn_play)
         controls.addWidget(self.btn_pause)
         controls.addStretch()
+        controls.addWidget(self.current_time)
+        controls.addWidget(self.progress)
+        controls.addWidget(self.total_time)
+        controls.addSpacing(20)
         controls.addWidget(QLabel("Volume"))
         controls.addWidget(self.volume)
-        controls.addWidget(self.progress)
         main_layout.addLayout(controls)
         root.addLayout(self.sidebar, 1)
         root.addLayout(main_layout, 3)
@@ -123,6 +129,12 @@ class MusicUI(QWidget):
             if duration > 0:
                 self.player.player.set_time(int((value / 1000) * duration))
 
+    def format_time(self, ms):
+        seconds = int(ms /1000)
+        mins = seconds // 60
+        secs = seconds % 60
+
+        return f"{mins}:{secs:02}"
 
     def update_progress(self):
         try:
@@ -137,6 +149,8 @@ class MusicUI(QWidget):
                 self.progress.blockSignals(True)
                 self.progress.setValue(value)
                 self.progress.blockSignals(False)
+                self.current_time.setText(self.format_time(current))
+                self.total_time.setText(self.format_time(duration))
 
             state = self.player.player.get_state()
             if state == self.player.vlc.State.Ended:
@@ -186,6 +200,7 @@ class MusicUI(QWidget):
 
         self.now_playing.setText(f"Now Playing: {song['name']}")
         self.progress.setValue(0)
+        self.current_time.setText("00:00")
 
         if song["cover"]:
             pixmap = QPixmap(song["cover"])
@@ -193,10 +208,6 @@ class MusicUI(QWidget):
         else:
             self.cover.setPixmap(QPixmap())
 
-
-    # -------------------------
-    # NEXT SONG
-    # -------------------------
     def next_song(self):
         current = self.list_widget.currentRow()
         next_index = current + 1
@@ -206,10 +217,6 @@ class MusicUI(QWidget):
             self.progress.setValue(0)
             self.play_selected()
 
-
-    # -------------------------
-    # SETTINGS
-    # -------------------------
     def open_settings(self):
         dlg = SettingsDialog(self)
         if dlg.exec():
