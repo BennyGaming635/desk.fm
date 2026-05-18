@@ -10,7 +10,7 @@ class MusicUI(QWidget):
         super().__init__()
         self.player = player
         
-        set.setWindowTitle("DeskFM")
+        self.setWindowTitle("DeskFM")
         self.setMinimumSize(900, 600)
 
         self.songs = []
