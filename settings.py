@@ -97,14 +97,14 @@ class SettingsDialog(QDialog):
             }
         """)
 
-        def save(self):
-            save_config({"theme": self.combo.currentText()})
-            self.accept()
+    def save(self):
+        save_config({"theme": self.combo.currentText()})
+        self.accept()
 
-        def check_update(self):
-            update = check_github_update()
+    def check_update(self):
+        update = check_github_update()
 
-            if update:
-                self.label.setText(f"Latest Version: {update['version']}")
-            else:
-                self.label.setText("Could not check for updates")
+        if update:
+            self.label.setText(f"Latest Version: {update['version']}")
+        else:
+            self.label.setText("Could not check for updates")
