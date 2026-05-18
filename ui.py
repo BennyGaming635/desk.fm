@@ -70,3 +70,23 @@ class MusicUI(QWidget):
         self.setLayout(root)
 
         self.setStyleSheet(self.dark_theme())
+
+    def load_songs(self):
+        files, _ = QFileDialog.getOpenFileNames(self, "Select Music Files", "", "Audio Files (*.mp3 *.wav *.ogg)")
+        for f in files:
+            self.songs.append(f)
+            item = QListWidgetItem(f.split("/")[-1])
+            self.list_widget.addItem(item)
+
+    def play_selected(self):
+        item = self.list_widget.currentItem()
+        if not item:
+            return
+        
+        index = self.list_widget.currentRow()
+        song = self.songs[index]
+
+        self.player.load(song)
+        self.player.play()
+
+        self.now_playing.setText(f"Now Playing: {item.text()}")
