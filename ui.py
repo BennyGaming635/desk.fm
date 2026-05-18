@@ -19,6 +19,7 @@ class MusicUI(QWidget):
     def __init__(self, player):
         super().__init__()
         self.player = player
+        self.fullscreen_player = FullScreenPlayer()
 
         self.setWindowTitle("DeskFM")
         self.setMinimumSize(900, 600)
@@ -29,7 +30,6 @@ class MusicUI(QWidget):
         self.cover.setScaledContents(True)
 
         self.songs = []
-        self.fullscreen_player = FullScreenPlayer()
 
         root = QHBoxLayout()
         self.sidebar = QVBoxLayout()
@@ -206,12 +206,26 @@ class MusicUI(QWidget):
 
     def open_fullscreen(self):
         item = self.list_widget.currentItem()
-        if not item:
-            return
         index = self.list_widget.currentRow()
+
+        if not item or index < 0:
+            text = self.now_playing.text()
+            if text.startswith("Now Playing:"):
+                title = text.replace("Now Playing:", "").strip()
+                for i, s in enumerate(self.songs):
+                    if s.get("name") == title:
+                        index = i
+                        break
+
+        if index is None or index < 0 or index >= len(self.songs):
+            return
+
         song = self.songs[index]
         self.fullscreen_player.update_song(song["name"], song["cover"])
+        self.fullscreen_player.show()
         self.fullscreen_player.showFullScreen()
+        self.fullscreen_player.raise_()
+        self.fullscreen_player.activateWindow()
 
     def play_selected(self):
         item = self.list_widget.currentItem()
