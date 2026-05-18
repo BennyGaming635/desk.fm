@@ -1,3 +1,4 @@
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout,
     QPushButton, QListWidget, QLabel,
@@ -42,13 +43,20 @@ class MusicUI(QWidget):
 
         controls = QHBoxLayout()
 
-        self.btn_play = QPushButton("Play")
-        self.btn_pause = QPushButton("Pause")
-        self.btn_stop = QPushButton("Stop")
+        self.btn_play = QPushButton()
+        self.btn_pause = QPushButton()
+
+        self.btn_pause.setIcon(QIcon("assets/icons/pause.svg"))
+        self.btn_play.setIcon(QIcon("assets/icons/play.svg"))
+
+        self.btn_play.setIconSize(Qt.QSize(28, 28))
+        self.btn_pause.setIconSize(Qt.QSize(28, 28))
 
         self.btn_play.clicked.connect(self.play_selected)
         self.btn_pause.clicked.connect(self.player.pause)
-        self.btn_stop.clicked.connect(self.player.stop)
+
+        self.btn_play.setStyleSheet("background-color: transparent;")
+        self.btn_pause.setStyleSheet("background-color: transparent;")
 
         self.volume = QSlider(Qt.Horizontal)
         self.volume.setRange(0, 100)
@@ -57,7 +65,6 @@ class MusicUI(QWidget):
 
         controls.addWidget(self.btn_play)
         controls.addWidget(self.btn_pause)
-        controls.addWidget(self.btn_stop)
         controls.addStretch()
         controls.addWidget(QLabel("Volume"))
         controls.addWidget(self.volume)
@@ -100,14 +107,13 @@ class MusicUI(QWidget):
             }
             
             QPushButton {
-                background-color: #1DB954;
+                background-color: transparent;
                 border: none;
-                padding: 8px;
-                border-radius: 6px;
             }
             
             QPushButton:hover {
-                background-color: #1ED760;
+                background-color: #222;
+                border-radius: 8px;
             }
 
             QListWidget {
