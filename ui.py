@@ -223,6 +223,7 @@ class MusicUI(QWidget):
         QTimer.singleShot(100, self.player.play)
 
         self.now_playing.setText(f"Now Playing: {song['name']}")
+        self.fullscreen_player.update_song(song["name"], song["cover"])
         self.progress.setValue(0)
         self.current_time.setText("00:00")
 
