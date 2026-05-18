@@ -116,16 +116,11 @@ class MusicUI(QWidget):
                 self.progress.setValue(value)
                 self.progress.blockSignals(False)
 
-        except:
-            pass
-
-            duration = self.player.player.get_length()
-            current = self.player.player.get_time()
-
-            if duration > 0 and current >= 0:
-                self.progress.blockSignals(True)
-                self.progress.setValue(int((current / duration) * 1000))
-                self.progress.blockSignals(False)
+            state = self.player.player.get_state()
+            if state == self.player.vlc.State.Ended:
+                self.next_song()
+        except Exception as e:
+            print(e)
 
     def load_songs(self):
         files, _ = QFileDialog.getOpenFileNames(
@@ -169,6 +164,7 @@ class MusicUI(QWidget):
 
         if next_index < len(self.songs):
             self.list_widget.setCurrentRow(next_index)
+            self.progress.setValue(0)
             self.play_selected()
 
     def dark_theme(self):
