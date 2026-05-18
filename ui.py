@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
     QPushButton, QListWidget, QLabel,
     QFileDialog, QSlider, QListWidgetItem
 )
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt, QSize, QTimer
 
 from utils import extract_cover_image
 import os
@@ -38,6 +38,11 @@ class MusicUI(QWidget):
         self.sidebar.addWidget(self.title)
         self.sidebar.addWidget(self.btn_load)
         self.sidebar.addStretch()
+        
+        self.timer = QTimer ()
+        self.timer.setInterval(500)
+        self.timer.timeout.connect(self.update_progress)
+        self.timer.start()
 
         main_layout = QVBoxLayout()
         main_layout.addWidget(self.cover)
@@ -72,12 +77,16 @@ class MusicUI(QWidget):
         self.volume.setRange(0, 100)
         self.volume.setValue(80)
         self.volume.valueChanged.connect(self.player.set_volume)
+        self.progress = QSlider(Qt.Horizontal)
+        self.progress.setRange(0, 1000)
+        self.progress.sliderMoved.connect(self.seek_position)
 
         controls.addWidget(self.btn_play)
         controls.addWidget(self.btn_pause)
         controls.addStretch()
         controls.addWidget(QLabel("Volume"))
         controls.addWidget(self.volume)
+        controls.addWidget(self.progress)
 
         main_layout.addLayout(controls)
 
@@ -87,6 +96,37 @@ class MusicUI(QWidget):
         self.setLayout(root)
 
         self.setStyleSheet(self.dark_theme())
+
+    def seek_position(self, value):
+        if self.player.player:
+            duration = self.player.player.get_length()
+            if duration > 0:
+                self.player.player.set_time(int((value / 1000) * duration))
+
+    def update_progress(self):
+        try:
+            if not self.player.player:
+                return
+
+            duration = self.player.player.get_length()
+            current = self.player.player.get_time()
+
+            if duration > 0 and current >= 0:
+                value = int((current / duration) * 1000)
+                self.progress.blockSignals(True)
+                self.progress.setValue(value)
+                self.progress.blockSignals(False)
+
+        except:
+            pass
+
+            duration = self.player.player.get_length()
+            current = self.player.player.get_time()
+
+            if duration > 0 and current >= 0:
+                self.progress.blockSignals(True)
+                self.progress.setValue(int((current / duration) * 1000))
+                self.progress.blockSignals(False)
 
     def load_songs(self):
         files, _ = QFileDialog.getOpenFileNames(
@@ -116,6 +156,7 @@ class MusicUI(QWidget):
         self.player.play()
 
         self.now_playing.setText(f"Now Playing: {song['name']}")
+        self.progress.setValue(0)
 
         if song["cover"]:
             pixmap = QPixmap(song["cover"])
