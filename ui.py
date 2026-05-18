@@ -39,14 +39,7 @@ class MusicUI(QWidget):
         self.sidebar.addWidget(self.title)
         self.sidebar.addWidget(self.btn_load)
 
-        self.sidebar.addStretch()
-        
-        self.btn_settings = QPushButton()
-        self.btn_settings.setIcon(QIcon("assets/icons/settings.svg"))
-        self.btn_settings.setIconSize(QSize(24, 24))
-        self.btn_settings.setFixedSize(40, 40)
-        self.btn_settings.clicked.connect(self.open_settings)
-        self.sidebar.addWidget(self.btn_settings, alignment=Qt.AlignLeft)
+        self.sidebar.addStretch(1)
 
         self.sidebar.addWidget(self.title)
         self.sidebar.addWidget(self.btn_load)
@@ -74,6 +67,12 @@ class MusicUI(QWidget):
 
         self.btn_pause.setIcon(QIcon("assets/icons/pause.svg"))
         self.btn_play.setIcon(QIcon("assets/icons/play.svg"))
+        self.btn_settings = QPushButton()
+        self.btn_settings.setIcon(QIcon("assets/icons/settings.svg"))
+        self.btn_settings.setIconSize(QSize(28, 28))
+        self.btn_settings.setFixedSize(30, 30)
+        self.btn_settings.clicked.connect(self.open_settings)
+        self.sidebar.addWidget(self.btn_settings, alignment=Qt.AlignLeft)
 
         self.btn_play.setIconSize(QSize(28, 28))
         self.btn_pause.setIconSize(QSize(28, 28))
