@@ -9,6 +9,7 @@ from PySide6.QtCore import Qt, QSize, QTimer
 from utils import extract_cover_image
 import os
 import vlc
+from importwizard import ImportWizard
 
 class MusicUI(QWidget):
     def __init__(self, player):
@@ -124,9 +125,12 @@ class MusicUI(QWidget):
             print(e)
 
     def load_songs(self):
-        files, _ = QFileDialog.getOpenFileNames(
-            self, "Import Music", "", "Audio Files (*.mp3 *.wav *.ogg)"
-        )
+        wizard = ImportWizard(self)
+
+        if wizard.exec() == QDialog.Accepted:
+            return
+        
+        files = wizard.selected_files
 
         for f in files:
             cover = extract_cover_image(f)
