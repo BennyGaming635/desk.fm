@@ -10,6 +10,7 @@ from utils import extract_cover_image
 import os
 import vlc
 from importwizard import ImportWizard
+from settings import SettingsDialog, get_theme
 
 class MusicUI(QWidget):
     def __init__(self, player):
@@ -35,9 +36,12 @@ class MusicUI(QWidget):
         
         self.btn_load = QPushButton("Import Music")
         self.btn_load.clicked.connect(self.load_songs)
+        self.btn_settings = QPushButton("Settings")
+        self.btn_settings.clicked.connect(self.open_settings)
 
         self.sidebar.addWidget(self.title)
         self.sidebar.addWidget(self.btn_load)
+        self.sidebar.addWidget(self.btn_settings)
         self.sidebar.addStretch()
         
         self.timer = QTimer ()
@@ -96,7 +100,7 @@ class MusicUI(QWidget):
 
         self.setLayout(root)
 
-        self.setStyleSheet(self.dark_theme())
+        self.apply_theme()
 
     def seek_position(self, value):
         if self.player.player:
@@ -172,6 +176,48 @@ class MusicUI(QWidget):
             self.progress.setValue(0)
             self.play_selected()
 
+    def open_settings(self):
+        dlg = SettingsDialog(self)
+        if dlg.exec():
+            self.apply_theme()
+
+    def apply_theme(self):
+        accent = get_theme()["accent"]
+
+        self.setStyleSheet(f"""
+             QWidget {{
+            background-color: #121212;
+            color: white;
+            }}
+
+            QPushButton {{
+                background-color: transparent;
+                border: none;
+            }}
+
+            QPushButton:hover {{
+                background-color: #222;
+                border-radius: 4px;
+            }}
+
+            QSlider::handle:horizontal {{
+                background: {accent};
+            }}
+
+            QSlider::groove:horizontal {{
+                background: #333;
+            }}
+
+            QListWidget {{
+                background-color: #181818;
+                border: none;
+            }}
+
+            QListWidget::item:selected {{
+                background-color: {accent};
+            }}
+        """)
+    
     def dark_theme(self):
         return """
             QWidget {
