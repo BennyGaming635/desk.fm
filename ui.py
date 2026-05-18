@@ -158,7 +158,7 @@ class MusicUI(QWidget):
         song = self.songs[index]
 
         self.player.load(song["path"])
-        self.player.play()
+        QTimer.singleShot(100, self.player.play)
 
         self.now_playing.setText(f"Now Playing: {song['name']}")
         self.progress.setValue(0)
