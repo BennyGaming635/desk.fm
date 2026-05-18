@@ -1,14 +1,13 @@
 from PySide6.QtGui import QIcon, QPixmap
-
 from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout,
     QPushButton, QListWidget, QLabel,
     QFileDialog, QSlider, QListWidgetItem
 )
 from PySide6.QtCore import Qt, QSize, QTimer
-
 from utils import extract_cover_image
 import os
+import vlc
 
 class MusicUI(QWidget):
     def __init__(self, player):
@@ -43,6 +42,12 @@ class MusicUI(QWidget):
         self.timer.setInterval(500)
         self.timer.timeout.connect(self.update_progress)
         self.timer.start()
+
+        events = self.player.player.event_manager()
+        events.event_attach(
+            self.player.vlc.EventType.MediaPlayerEndReached,
+            self.song_finished
+        )
 
         main_layout = QVBoxLayout()
         main_layout.addWidget(self.cover)
@@ -163,6 +168,17 @@ class MusicUI(QWidget):
             self.cover.setPixmap(pixmap)
         else:
             self.cover.setPixmap(QPixmap())
+
+    def next_song(self):
+        current = self.list_widget.currentRow()
+        next_index = current + 1
+
+        if next_index < len(self.songs):
+            self.list_widget.setCurrentRow(next_index)
+            self.play_selected()
+
+    def song_finished(self, event):
+        QTimer.singleShot(0, self.next_song)
 
     def dark_theme(self):
         return """

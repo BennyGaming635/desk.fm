@@ -2,6 +2,7 @@ import vlc
 
 class MusicPlayer:
     def __init__(self):
+        self.vlc = vlc
         self.instance = vlc.Instance()
         self.player = self.instance.media_player_new()
         self.media = None
