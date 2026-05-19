@@ -34,9 +34,15 @@ class MusicUI(QWidget):
         self.search_bar.textChanged.connect(self.search_library)
 
         self.songs = []
+        self.queue = []
 
-        root = QHBoxLayout()
-        self.sidebar = QVBoxLayout()
+        self.queue_panel = QListWidget()
+        self.queue_panel.setMinimumWidth(200)
+        self.queue_panel.setVisible(False)
+
+        root.addLayout(self.sidebar, 1)
+        root.addLayout(main_layout, 3)
+        root.addWidget(self.queue_panel, 1)
 
         self.title = QLabel("DeskFM")
         self.title.setStyleSheet("""
@@ -86,6 +92,11 @@ class MusicUI(QWidget):
         self.btn_load.setFixedSize(30, 30)
         self.btn_load.clicked.connect(self.load_songs)
         self.sidebar.addWidget(self.btn_load, alignment=Qt.AlignLeft)
+        self.btn_queue = QPushButton()
+        self.btn_queue.setIcon(QIcon("assets/icons/queue.svg"))
+        self.btn_queue.setIconSize(QSize(28, 28))
+        self.btn_queue.setFixedSize(30, 30)
+        self.btn_queue.clicked.connect(self.toggle_queue)
 
         self.btn_play.setIconSize(QSize(28, 28))
         self.btn_pause.setIconSize(QSize(28, 28))
