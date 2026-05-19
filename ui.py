@@ -160,6 +160,21 @@ class MusicUI(QWidget):
                 item.setIcon(QIcon(cover))
             self.list_widget.addItem(item)
 
+    def show_context_menu(self, pos):
+        item = self.list_widget.itemAt(pos)
+        if not item:
+            return
+        
+        menu = QMenu()
+
+        add_queue = menu.addAction("Add to Queue")
+        action = menu.exec(self.list_widget.mapToGlobal(pos))
+
+        if action == add_queue:
+            index = self.list_widget.row(item)
+            song = self.songs[index]
+            self.add_to_queue(song)
+
     def search_library(self, text):
         self.list_widget.clear()
         rows = get_all_songs()
