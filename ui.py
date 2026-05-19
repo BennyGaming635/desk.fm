@@ -169,6 +169,13 @@ class MusicUI(QWidget):
                 })
                 self.list_widget.addItem(title)
 
+    def toggle_queue(self):
+        self.queue_panel.setVisible(not self.queue_panel.isVisible())
+
+    def add_to_queue(self, song):
+        self.queue.append(song)
+        self.queue_panel.addItem(song["name"])
+
     def set_tile_view(self):
         self.list_widget.setViewMode(QListWidget.IconMode)
         self.list_widget.setIconSize(QSize(120, 120))
