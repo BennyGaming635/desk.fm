@@ -8,6 +8,7 @@ from library import init_db
 if __name__ == "__main__":
     init_db()
     app = QApplication(sys.argv)
+    app.setWindowIcon("assets/icon.png")
     player = MusicPlayer()
     window = MusicUI(player)
     window.show()
