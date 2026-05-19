@@ -40,6 +40,8 @@ class MusicUI(QWidget):
         self.queue_panel.setMinimumWidth(200)
         self.queue_panel.setVisible(False)
 
+        root = QHBoxLayout()
+        self.sidebar = QVBoxLayout()
         root.addLayout(self.sidebar, 1)
         root.addLayout(main_layout, 3)
         root.addWidget(self.queue_panel, 1)
