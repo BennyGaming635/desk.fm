@@ -10,7 +10,7 @@ from utils import extract_cover_image
 import os
 import vlc
 from importwizard import ImportWizard
-from settings import SettingsDialog, get_theme
+from settings import SettingsDialog, get_theme, get_view_mode
 from library import add_song, get_all_songs
 
 
@@ -58,6 +58,7 @@ class MusicUI(QWidget):
 
         self.list_widget = QListWidget()
         self.list_widget.itemClicked.connect(self.play_selected)
+        self.apply_view_mode()
 
         main_layout.addWidget(self.now_playing)
         main_layout.addWidget(self.list_widget)
@@ -151,6 +152,16 @@ class MusicUI(QWidget):
                     "cover": cover
                 })
                 self.list_widget.addItem(title)
+
+    def set_tile_view(self):
+        self.list_widget.setViewMode(QListWidget.IconMode)
+        self.list_widget.setIconSize(QSize(120, 120))
+        self.list_widget.setGridSize(QSize(140, 160))
+
+    def set_list_view(self):
+        self.list_widget.setViewMode(QListWidget.ListMode)
+        self.list_widget.setIconSize(QSize(24, 24))
+        self.list_widget.setGridSize(QSize())
 
     def seek_position(self, value):
         if self.player.player:
