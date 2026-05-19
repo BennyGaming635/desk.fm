@@ -158,12 +158,21 @@ class MusicUI(QWidget):
         menu = QMenu()
 
         add_queue = menu.addAction("Add to Queue")
-        action = menu.exec(self.list_widget.mapToGlobal(pos))
+        remove_library = menu.addAction("Remove from Library")
+
+        action = menu.exec(self.list_widget.viewport().mapToGlobal(pos)
+        )
+
+        index = self.list_widget.row(item)
+        song = self.songs[index]
 
         if action == add_queue:
             index = self.list_widget.row(item)
             song = self.songs[index]
             self.add_to_queue(song)
+
+        elif action == remove_library:
+            self.remove_from_library(index)
 
     def search_library(self, text):
         self.list_widget.clear()
