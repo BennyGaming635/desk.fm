@@ -14,7 +14,7 @@ from importwizard import ImportWizard
 from settings import (
     SettingsDialog, get_theme, get_view_mode
 )
-from library import add_song, get_all_songs
+from library import add_song, get_all_songs, remove_song
 
 
 class MusicUI(QWidget):
@@ -149,6 +149,12 @@ class MusicUI(QWidget):
             if cover:
                 item.setIcon(QIcon(cover))
             self.list_widget.addItem(item)
+
+    def remove_from_library(self, index):
+        song = self.songs[index]
+        remove_song(song["path"])
+        self.songs.pop(index)
+        self.list_widget.takeItem(index)
 
     def show_context_menu(self, pos):
         item = self.list_widget.itemAt(pos)
