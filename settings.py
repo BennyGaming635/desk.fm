@@ -59,12 +59,17 @@ class SettingsDialog(QDialog):
 
         self.label = QLabel("Theme")
         self.combo = QComboBox()
+        self.view_label = QLabel("View")
+        
+        self.view_combo = QComboBox()
+        self.view_combo.addItems(["List View", "Tile View"])
 
         for theme in THEMES.keys():
             self.combo.addItem(theme)
 
         config = load_config()
         self.combo.setCurrentText(config.get("theme", "Classic Green"))
+        self.view_combo.setCurrentText(config.get("view_mode", "List View"))
 
         self.save_btn = QPushButton("Save")
         self.update_btn = QPushButton("Check for Updates")
@@ -74,6 +79,8 @@ class SettingsDialog(QDialog):
 
         layout.addWidget(self.label)
         layout.addWidget(self.combo)
+        layout.addWidget(self.view_label)
+        layout.addWidget(self.view_combo)
         layout.addWidget(self.save_btn)
         layout.addWidget(self.update_btn)
 
@@ -98,7 +105,10 @@ class SettingsDialog(QDialog):
         """)
 
     def save(self):
-        save_config({"theme": self.combo.currentText()})
+        save_config({
+            "theme": self.combo.currentText(),
+            "view_mode": self.view_combo.currentText()
+        })
         self.accept()
 
     def check_update(self):
@@ -108,3 +118,7 @@ class SettingsDialog(QDialog):
             self.label.setText(f"Latest Version: {update['version']}")
         else:
             self.label.setText("Could not check for updates")
+
+def get_view_mode():
+    config = load_config()
+    return config.get("view_mode", "List View")

@@ -3,14 +3,16 @@ from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout,
     QPushButton, QListWidget, QLabel,
     QFileDialog, QSlider, QListWidgetItem,
-    QDialog
+    QDialog, QSizePolicy, QLineEdit
 )
 from PySide6.QtCore import Qt, QSize, QTimer
 from utils import extract_cover_image
 import os
 import vlc
 from importwizard import ImportWizard
-from settings import SettingsDialog, get_theme
+from settings import (
+    SettingsDialog, get_theme, get_view_mode
+)
 from library import add_song, get_all_songs
 
 
@@ -27,25 +29,24 @@ class MusicUI(QWidget):
         self.cover.setStyleSheet("background-color: #222; border-radius: 10px;")
         self.cover.setScaledContents(True)
 
+        self.search_bar = QLineEdit()
+        self.search_bar.setPlaceholderText("Search songs...")
+        self.search_bar.textChanged.connect(self.search_library)
+
         self.songs = []
 
         root = QHBoxLayout()
         self.sidebar = QVBoxLayout()
 
         self.title = QLabel("DeskFM")
-        self.title.setStyleSheet("font-size: 22px; font-weight: bold;")
-
-        self.btn_load = QPushButton("Import Music")
-        self.btn_load.clicked.connect(self.load_songs)
-
-        self.btn_settings = QPushButton("Settings")
-        self.btn_settings.clicked.connect(self.open_settings)
+        self.title.setStyleSheet("""
+            font-size: 22px;
+            font-weight: bold;
+        """)
 
         self.sidebar.addWidget(self.title)
-        self.sidebar.addWidget(self.btn_load)
-        self.sidebar.addWidget(self.btn_settings)
         self.sidebar.addStretch()
-
+        self.sidebar.addWidget(self.title)
         self.timer = QTimer()
         self.timer.setInterval(500)
         self.timer.timeout.connect(self.update_progress)
@@ -59,9 +60,11 @@ class MusicUI(QWidget):
 
         self.list_widget = QListWidget()
         self.list_widget.itemClicked.connect(self.play_selected)
+        self.apply_view_mode()
 
         main_layout.addWidget(self.now_playing)
         main_layout.addWidget(self.list_widget)
+        main_layout.addWidget(self.search_bar)
 
         controls = QHBoxLayout()
 
@@ -70,6 +73,19 @@ class MusicUI(QWidget):
 
         self.btn_pause.setIcon(QIcon("assets/icons/pause.svg"))
         self.btn_play.setIcon(QIcon("assets/icons/play.svg"))
+
+        self.btn_settings = QPushButton()
+        self.btn_settings.setIcon(QIcon("assets/icons/settings.svg"))
+        self.btn_settings.setIconSize(QSize(28, 28))
+        self.btn_settings.setFixedSize(30, 30)
+        self.btn_settings.clicked.connect(self.open_settings)
+        self.sidebar.addWidget(self.btn_settings, alignment=Qt.AlignLeft)
+        self.btn_load = QPushButton()
+        self.btn_load.setIcon(QIcon("assets/icons/import.svg"))
+        self.btn_load.setIconSize(QSize(28, 28))
+        self.btn_load.setFixedSize(30, 30)
+        self.btn_load.clicked.connect(self.load_songs)
+        self.sidebar.addWidget(self.btn_load, alignment=Qt.AlignLeft)
 
         self.btn_play.setIconSize(QSize(28, 28))
         self.btn_pause.setIconSize(QSize(28, 28))
@@ -85,6 +101,9 @@ class MusicUI(QWidget):
         self.volume.setValue(80)
         self.volume.valueChanged.connect(self.player.set_volume)
 
+
+        self.current_time = QLabel("00:00")
+        self.total_time = QLabel("00:00")
         self.progress = QSlider(Qt.Horizontal)
         self.progress.setRange(0, 1000)
         self.progress.sliderMoved.connect(self.seek_position)
@@ -92,9 +111,12 @@ class MusicUI(QWidget):
         controls.addWidget(self.btn_play)
         controls.addWidget(self.btn_pause)
         controls.addStretch()
+        controls.addWidget(self.current_time)
+        controls.addWidget(self.progress)
+        controls.addWidget(self.total_time)
+        controls.addSpacing(20)
         controls.addWidget(QLabel("Volume"))
         controls.addWidget(self.volume)
-        controls.addWidget(self.progress)
         main_layout.addLayout(controls)
         root.addLayout(self.sidebar, 1)
         root.addLayout(main_layout, 3)
@@ -104,6 +126,7 @@ class MusicUI(QWidget):
 
     def load_library(self):
         self.songs = []
+        self.search_library("")
         self.list_widget.clear()
 
         rows = get_all_songs()
@@ -115,7 +138,35 @@ class MusicUI(QWidget):
                 "cover": cover
             })
 
-            self.list_widget.addItem(title)
+            item = QListWidgetItem(title)
+            if cover:
+                item.setIcon(QIcon(cover))
+            self.list_widget.addItem(item)
+
+    def search_library(self, text):
+        self.list_widget.clear()
+        rows = get_all_songs()
+        text = text.lower().strip()
+        self.songs = []
+        for path, title, aartist, album, cover in rows:
+            haystack = f"{title} {aartist} {album}".lower()
+            if text in haystack:
+                self.songs.append({
+                    "path": path,
+                    "name": title,
+                    "cover": cover
+                })
+                self.list_widget.addItem(title)
+
+    def set_tile_view(self):
+        self.list_widget.setViewMode(QListWidget.IconMode)
+        self.list_widget.setIconSize(QSize(120, 120))
+        self.list_widget.setGridSize(QSize(140, 160))
+
+    def set_list_view(self):
+        self.list_widget.setViewMode(QListWidget.ListMode)
+        self.list_widget.setIconSize(QSize(24, 24))
+        self.list_widget.setGridSize(QSize())
 
     def seek_position(self, value):
         if self.player.player:
@@ -123,6 +174,20 @@ class MusicUI(QWidget):
             if duration > 0:
                 self.player.player.set_time(int((value / 1000) * duration))
 
+    def format_time(self, ms):
+        seconds = int(ms /1000)
+        mins = seconds // 60
+        secs = seconds % 60
+
+        return f"{mins}:{secs:02}"
+    
+    def apply_view_mode(self):
+        mode = get_view_mode()
+
+        if mode == "Tile View":
+            self.set_tile_view()
+        else:
+            self.set_list_view()
 
     def update_progress(self):
         try:
@@ -137,6 +202,8 @@ class MusicUI(QWidget):
                 self.progress.blockSignals(True)
                 self.progress.setValue(value)
                 self.progress.blockSignals(False)
+                self.current_time.setText(self.format_time(current))
+                self.total_time.setText(self.format_time(duration))
 
             state = self.player.player.get_state()
             if state == self.player.vlc.State.Ended:
@@ -186,6 +253,7 @@ class MusicUI(QWidget):
 
         self.now_playing.setText(f"Now Playing: {song['name']}")
         self.progress.setValue(0)
+        self.current_time.setText("00:00")
 
         if song["cover"]:
             pixmap = QPixmap(song["cover"])
@@ -193,10 +261,6 @@ class MusicUI(QWidget):
         else:
             self.cover.setPixmap(QPixmap())
 
-
-    # -------------------------
-    # NEXT SONG
-    # -------------------------
     def next_song(self):
         current = self.list_widget.currentRow()
         next_index = current + 1
@@ -206,14 +270,11 @@ class MusicUI(QWidget):
             self.progress.setValue(0)
             self.play_selected()
 
-
-    # -------------------------
-    # SETTINGS
-    # -------------------------
     def open_settings(self):
         dlg = SettingsDialog(self)
         if dlg.exec():
             self.apply_theme()
+            self.apply_view_mode()
 
 
     def apply_theme(self):
