@@ -50,7 +50,7 @@ def remove_song(path):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
 
-    cur.execute(
+    c.execute(
         "DELETE FROM songs WHERE path = ?", (path,)
     )
 
