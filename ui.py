@@ -40,17 +40,9 @@ class MusicUI(QWidget):
         root = QHBoxLayout()
         self.sidebar = QVBoxLayout()
 
-        self.title = QLabel("DeskFM")
-        self.title.setStyleSheet("""
-            font-size: 22px;
-            font-weight: bold;
-        """)
-
-        self.sidebar.addWidget(self.title)
         self.sidebar.addStretch()
-        self.sidebar.addWidget(self.title)
         self.timer = QTimer()
-        self.timer.setInterval(500)
+        self.timer.setInterval(1000)
         self.timer.timeout.connect(self.update_progress)
         self.timer.start()
 
@@ -59,9 +51,9 @@ class MusicUI(QWidget):
         self.queue_panel = QListWidget()
         self.queue_panel.setMinimumWidth(200)
         self.queue_panel.setVisible(False)
-        root.addLayout(self.sidebar, 1)
-        root.addLayout(main_layout, 3)
-        root.addWidget(self.queue_panel, 1)
+        root.addLayout(self.sidebar, 3.5)
+        root.addLayout(main_layout, 77.5)
+        root.addWidget(self.queue_panel, 20)
 
         self.now_playing = QLabel("Nothing is playing")
         self.now_playing.setStyleSheet("font-size: 18px;")
@@ -135,8 +127,6 @@ class MusicUI(QWidget):
         controls.addWidget(QLabel("Volume"))
         controls.addWidget(self.volume)
         main_layout.addLayout(controls)
-        root.addLayout(self.sidebar, 1)
-        root.addLayout(main_layout, 3)
         self.setLayout(root)
         self.apply_theme()
         self.load_library()
