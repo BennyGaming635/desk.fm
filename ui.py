@@ -36,15 +36,8 @@ class MusicUI(QWidget):
         self.songs = []
         self.queue = []
 
-        self.queue_panel = QListWidget()
-        self.queue_panel.setMinimumWidth(200)
-        self.queue_panel.setVisible(False)
-
         root = QHBoxLayout()
         self.sidebar = QVBoxLayout()
-        root.addLayout(self.sidebar, 1)
-        root.addLayout(main_layout, 3)
-        root.addWidget(self.queue_panel, 1)
 
         self.title = QLabel("DeskFM")
         self.title.setStyleSheet("""
@@ -62,6 +55,12 @@ class MusicUI(QWidget):
 
         main_layout = QVBoxLayout()
         main_layout.addWidget(self.cover)
+        self.queue_panel = QListWidget()
+        self.queue_panel.setMinimumWidth(200)
+        self.queue_panel.setVisible(False)
+        root.addLayout(self.sidebar, 1)
+        root.addLayout(main_layout, 3)
+        root.addWidget(self.queue_panel, 1)
 
         self.now_playing = QLabel("Nothing is playing")
         self.now_playing.setStyleSheet("font-size: 18px;")
@@ -99,6 +98,7 @@ class MusicUI(QWidget):
         self.btn_queue.setIconSize(QSize(28, 28))
         self.btn_queue.setFixedSize(30, 30)
         self.btn_queue.clicked.connect(self.toggle_queue)
+        self.sidebar.addWidget(self.btn_queue, alignment=Qt.AlignLeft)
 
         self.btn_play.setIconSize(QSize(28, 28))
         self.btn_pause.setIconSize(QSize(28, 28))
