@@ -71,7 +71,7 @@ class MusicUI(QWidget):
         self.apply_view_mode()
 
         self.list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.list_widget.customContextMenuRequested.connect(self.open_context_menu)
+        self.list_widget.customContextMenuRequested.connect(self.show_context_menu)
 
         main_layout.addWidget(self.now_playing)
         main_layout.addWidget(self.list_widget)
