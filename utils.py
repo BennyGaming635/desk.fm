@@ -26,40 +26,38 @@ def extract_cover_image(audio_path):
     
 def get_song_metadata(path):
     audio = File(path)
+
     title = None
     artist = "Unknown Artist"
     album = "Unknown Album"
 
     try:
-        if audio.tags:
-            if "TIT2" in audio.tags:
-                title = str(audio.tags["TIT2"])
-                
-            if "TPE1" in audio.tags:
-                artist = str(audio.tags["TPE1"])
+        if audio is not None and audio.tags:
 
-            if "TALB" in audio.tags:
-                album = str(audio.tags["TALB"])
+            if "TIT2" in audio:
+                title = str(audio["TIT2"])
 
-            if not title and "title" in audio:
-                title = audio["title"][0]
+            if "TPE1" in audio:
+                artist = str(audio["TPE1"])
 
-            if "artist" in audio:
-                artist = audio["artist"][0]
+            if "TALB" in audio:
+                album = str(audio["TALB"])
 
-            if "album" in audio:
-                album = audio["album"][0]
+            if not title and hasattr(audio, "tags"):
+                tags = audio.tags
+                if tags:
+                    for key in ["title", "TIT2"]:
+                        if key in tags:
+                            title = str(tags[key][0])
 
-    except Exception as e:
-        print(f"Error extracting metadata from {path}: {e}")
+    except Exception:
+        pass
 
-        if not title:
-            title = os.path.splitext(
-                os.path.basename(path)
-            )[0]
+    if not title:
+        title = os.path.splitext(os.path.basename(path))[0]
 
-        return {
-            "title": title,
-            "artist": artist,
-            "album": album
-        }
+    return {
+        "title": title,
+        "artist": artist,
+        "album": album
+    }
