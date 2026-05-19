@@ -70,6 +70,9 @@ class MusicUI(QWidget):
         self.list_widget.itemClicked.connect(self.play_selected)
         self.apply_view_mode()
 
+        self.list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.list_widget.customContextMenuRequested.connect(self.open_context_menu)
+
         main_layout.addWidget(self.now_playing)
         main_layout.addWidget(self.list_widget)
         main_layout.addWidget(self.search_bar)
