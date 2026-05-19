@@ -45,3 +45,14 @@ def get_all_songs():
 
     conn.close()
     return rows
+
+def remove_song(path):
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+
+    cur.execute(
+        "DELETE FROM songs WHERE path = ?", (path,)
+    )
+
+    conn.commit()
+    conn.close()
