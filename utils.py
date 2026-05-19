@@ -4,25 +4,25 @@ from mutagen import File
 import os
 
 def extract_cover_image(audio_path):
-    try:
-        audio = MP3(audio_path, ID3=ID3)
-        tags = audio.tags
+    audio = File(audio_path)
 
-        if not tags:
+    if not audio:
+        return None
+    
+    try:
+        if "APIC:" in audio.tags:
+            art = audio.tags["APIC:"].data
+        else:
             return None
         
-        for tag in tags.values():
-            if isinstance(tag, APIC):
-                cover_path = audio_path + "_cover.jpg"
-
-                with open(cover_path, "wb") as img:
-                    img.write(tag.data)
-
-                return cover_path
-            
-    except Exception as e:
-        print(f"Error extracting cover from {audio_path}: {e}")
+        cover_path = audio_path + "_cover.jpg"
+        with open(cover_path, "wb") as f:
+            f.write(art)
+        
+        return cover_path
+    except Exception:
         return None
+
     
 def get_song_metadata(path):
     audio = File(path)
