@@ -136,7 +136,10 @@ class MusicUI(QWidget):
                 "cover": cover
             })
 
-            self.list_widget.addItem(title)
+            item = QListWidgetItem(title)
+            if cover:
+                item.setIcon(QIcon(cover))
+            self.list_widget.addItem(item)
 
     def search_library(self, text):
         self.list_widget.clear()
