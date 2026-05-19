@@ -3,7 +3,8 @@ from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout,
     QPushButton, QListWidget, QLabel,
     QFileDialog, QSlider, QListWidgetItem,
-    QDialog, QSizePolicy, QLineEdit
+    QDialog, QSizePolicy, QLineEdit,
+    QMenu
 )
 from PySide6.QtCore import Qt, QSize, QTimer
 from utils import extract_cover_image
@@ -34,26 +35,25 @@ class MusicUI(QWidget):
         self.search_bar.textChanged.connect(self.search_library)
 
         self.songs = []
+        self.queue = []
 
         root = QHBoxLayout()
         self.sidebar = QVBoxLayout()
 
-        self.title = QLabel("DeskFM")
-        self.title.setStyleSheet("""
-            font-size: 22px;
-            font-weight: bold;
-        """)
-
-        self.sidebar.addWidget(self.title)
         self.sidebar.addStretch()
-        self.sidebar.addWidget(self.title)
         self.timer = QTimer()
-        self.timer.setInterval(500)
+        self.timer.setInterval(1000)
         self.timer.timeout.connect(self.update_progress)
         self.timer.start()
 
         main_layout = QVBoxLayout()
         main_layout.addWidget(self.cover)
+        self.queue_panel = QListWidget()
+        self.queue_panel.setMinimumWidth(200)
+        self.queue_panel.setVisible(False)
+        root.addLayout(self.sidebar, 3.5)
+        root.addLayout(main_layout, 77.5)
+        root.addWidget(self.queue_panel, 20)
 
         self.now_playing = QLabel("Nothing is playing")
         self.now_playing.setStyleSheet("font-size: 18px;")
@@ -61,6 +61,9 @@ class MusicUI(QWidget):
         self.list_widget = QListWidget()
         self.list_widget.itemClicked.connect(self.play_selected)
         self.apply_view_mode()
+
+        self.list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.list_widget.customContextMenuRequested.connect(self.show_context_menu)
 
         main_layout.addWidget(self.now_playing)
         main_layout.addWidget(self.list_widget)
@@ -86,6 +89,12 @@ class MusicUI(QWidget):
         self.btn_load.setFixedSize(30, 30)
         self.btn_load.clicked.connect(self.load_songs)
         self.sidebar.addWidget(self.btn_load, alignment=Qt.AlignLeft)
+        self.btn_queue = QPushButton()
+        self.btn_queue.setIcon(QIcon("assets/icons/queue.svg"))
+        self.btn_queue.setIconSize(QSize(28, 28))
+        self.btn_queue.setFixedSize(30, 30)
+        self.btn_queue.clicked.connect(self.toggle_queue)
+        self.sidebar.addWidget(self.btn_queue, alignment=Qt.AlignLeft)
 
         self.btn_play.setIconSize(QSize(28, 28))
         self.btn_pause.setIconSize(QSize(28, 28))
@@ -118,8 +127,6 @@ class MusicUI(QWidget):
         controls.addWidget(QLabel("Volume"))
         controls.addWidget(self.volume)
         main_layout.addLayout(controls)
-        root.addLayout(self.sidebar, 1)
-        root.addLayout(main_layout, 3)
         self.setLayout(root)
         self.apply_theme()
         self.load_library()
@@ -143,6 +150,21 @@ class MusicUI(QWidget):
                 item.setIcon(QIcon(cover))
             self.list_widget.addItem(item)
 
+    def show_context_menu(self, pos):
+        item = self.list_widget.itemAt(pos)
+        if not item:
+            return
+        
+        menu = QMenu()
+
+        add_queue = menu.addAction("Add to Queue")
+        action = menu.exec(self.list_widget.mapToGlobal(pos))
+
+        if action == add_queue:
+            index = self.list_widget.row(item)
+            song = self.songs[index]
+            self.add_to_queue(song)
+
     def search_library(self, text):
         self.list_widget.clear()
         rows = get_all_songs()
@@ -157,6 +179,13 @@ class MusicUI(QWidget):
                     "cover": cover
                 })
                 self.list_widget.addItem(title)
+
+    def toggle_queue(self):
+        self.queue_panel.setVisible(not self.queue_panel.isVisible())
+
+    def add_to_queue(self, song):
+        self.queue.append(song)
+        self.queue_panel.addItem(song["name"])
 
     def set_tile_view(self):
         self.list_widget.setViewMode(QListWidget.IconMode)
@@ -262,6 +291,25 @@ class MusicUI(QWidget):
             self.cover.setPixmap(QPixmap())
 
     def next_song(self):
+        if self.queue:
+            song = self.queue.pop(0)
+            self.queue_panel.takeItem(0)
+
+            self.player.load(song["path"])
+            QTimer.singleShot(100, self.player.play)
+
+            self.now_playing.setText(f"Now Playing: {song['name']}")
+            self.progress.setValue(0)
+            self.current_time.setText("00:00")
+
+            if song["cover"]:
+                pixmap = QPixmap(song["cover"])
+                self.cover.setPixmap(pixmap)
+            else:
+                self.cover.setPixmap(QPixmap())
+
+            return
+        
         current = self.list_widget.currentRow()
         next_index = current + 1
 
