@@ -119,6 +119,6 @@ class SettingsDialog(QDialog):
         else:
             self.label.setText("Could not check for updates")
 
-    def get_view_mode(self):
-        config = load_config()
-        return config.get("view_mode", "List View")
+def get_view_mode():
+    config = load_config()
+    return config.get("view_mode", "List View")
