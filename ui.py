@@ -304,13 +304,24 @@ class MusicUI(QWidget):
         if self.queue:
             song = self.queue.pop(0)
             self.queue_panel.takeItem(0)
-            self.queue_panel.takeItem(0)
 
             self.player.load(song["path"])
             QTimer.singleShot(100, self.player.play)
 
             self.now_playing.setText(f"Now Playing: {song['name']}")
+            self.progress.setValue(0)
+            self.current_time.setText("00:00")
+
+            if song["cover"]:
+                pixmap = QPixmap(song["cover"])
+                self.cover.setPixmap(pixmap)
+            else:
+                self.cover.setPixmap(QPixmap())
+
             return
+        
+        current = self.list_widget.currentRow()
+        next_index = current + 1
 
         if next_index < len(self.songs):
             self.list_widget.setCurrentRow(next_index)
