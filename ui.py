@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
     QMenu
 )
 from PySide6.QtCore import Qt, QSize, QTimer
-from utils import extract_cover_image
+from utils import extract_cover_image, get_song_metadata
 import os
 import vlc
 from importwizard import ImportWizard
@@ -142,6 +142,8 @@ class MusicUI(QWidget):
             self.songs.append({
                 "path": path,
                 "name": title,
+                "artist": artist,
+                "album": album,
                 "cover": cover
             })
 
@@ -185,12 +187,14 @@ class MusicUI(QWidget):
         rows = get_all_songs()
         text = text.lower().strip()
         self.songs = []
-        for path, title, aartist, album, cover in rows:
-            haystack = f"{title} {aartist} {album}".lower()
+        for path, title, artist, album, cover in rows:
+            haystack = f"{title} {artist} {album}".lower()
             if text in haystack:
                 self.songs.append({
                     "path": path,
                     "name": title,
+                    "artist": artist,
+                    "album": album,
                     "cover": cover
                 })
                 self.list_widget.addItem(title)
@@ -266,7 +270,10 @@ class MusicUI(QWidget):
 
         for f in files:
             cover = extract_cover_image(f)
-            title = os.path.splitext(os.path.basename(f))[0]
+            metadata = get_song_metadata(f)
+            title = metadata["title"]
+            artist = metadata["artist"]
+            album = metadata["album"]
 
             self.songs.append({
                 "path": f,
@@ -279,8 +286,8 @@ class MusicUI(QWidget):
             add_song(
                 f,
                 title,
-                "Unknown Artist",
-                "Unknown Album",
+                artist,
+                album,
                 cover
             )
 

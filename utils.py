@@ -1,5 +1,6 @@
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC
+from mutagen import File
 import os
 
 def extract_cover_image(audio_path):
