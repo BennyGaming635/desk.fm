@@ -10,7 +10,9 @@ from utils import extract_cover_image
 import os
 import vlc
 from importwizard import ImportWizard
-from settings import SettingsDialog, get_theme, get_view_mode
+from settings import (
+    SettingsDialog, get_theme, get_view_mode
+)
 from library import add_song, get_all_songs
 
 
