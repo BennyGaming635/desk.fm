@@ -3,7 +3,8 @@ from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout,
     QPushButton, QListWidget, QLabel,
     QFileDialog, QSlider, QListWidgetItem,
-    QDialog, QSizePolicy, QLineEdit
+    QDialog, QSizePolicy, QLineEdit,
+    QMenu
 )
 from PySide6.QtCore import Qt, QSize, QTimer
 from utils import extract_cover_image
