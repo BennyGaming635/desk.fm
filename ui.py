@@ -175,6 +175,14 @@ class MusicUI(QWidget):
         secs = seconds % 60
 
         return f"{mins}:{secs:02}"
+    
+    def apply_view_mode(self):
+        mode = get_view_mode()
+
+        if mode == "Tile View":
+            self.set_tile_view()
+        else:
+            self.set_list_view()
 
     def update_progress(self):
         try:
@@ -261,6 +269,7 @@ class MusicUI(QWidget):
         dlg = SettingsDialog(self)
         if dlg.exec():
             self.apply_theme()
+            self.apply_view_mode()
 
 
     def apply_theme(self):
