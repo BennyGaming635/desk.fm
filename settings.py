@@ -73,17 +73,17 @@ class SettingsDialog(QDialog):
         self.view_combo.setCurrentText(config.get("view_mode", "List View"))
 
         self.save_btn = QPushButton("Save")
-        self.update_btn = QPushButton("Check for Updates")
+        self.install_btn = QPushButton("Install Updates")
 
         self.save_btn.clicked.connect(self.save)
-        self.update_btn.clicked.connect(self.check_update)
+        self.install_btn.clicked.connect(self.install_update)
 
         layout.addWidget(self.label)
         layout.addWidget(self.combo)
         layout.addWidget(self.view_label)
         layout.addWidget(self.view_combo)
         layout.addWidget(self.save_btn)
-        layout.addWidget(self.update_btn)
+        layout.addWidget(self.install_btn)
 
         self.setLayout(layout)
 
