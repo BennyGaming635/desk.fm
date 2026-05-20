@@ -14,8 +14,15 @@ from importwizard import ImportWizard
 from settings import (
     SettingsDialog, get_theme, get_view_mode
 )
-from library import add_song, get_all_songs, remove_song
-
+from library import (
+    add_song,
+    get_all_songs,
+    remove_song,
+    create_playlist,
+    get_playlists,
+    add_song_to_playlist,
+    get_playlist_songs
+)
 
 class MusicUI(QWidget):
     def __init__(self, player):
