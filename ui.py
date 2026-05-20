@@ -181,6 +181,7 @@ class MusicUI(QWidget):
 
         add_queue = menu.addAction("Add to Queue")
         remove_library = menu.addAction("Remove from Library")
+        add_playlist = menu.addAction("Add to Playlist")
 
         action = menu.exec(self.list_widget.viewport().mapToGlobal(pos)
         )
@@ -195,6 +196,24 @@ class MusicUI(QWidget):
 
         elif action == remove_library:
             self.remove_from_library(index)
+
+        elif action == add_playlist:
+            playlists = get_playlists()
+
+            playlist, ok = QInputDialog.getItem(
+                self,
+                "Add to Playlist",
+                "Playlist:",
+                playlists,
+                0,
+                False
+            )
+
+            if ok and playlist:
+                add_song_to_playlist(
+                    playlist,
+                    song["path"]
+                )
 
     def search_library(self, text):
         self.list_widget.clear()
