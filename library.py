@@ -84,7 +84,7 @@ def create_playlist(name):
 def get_playlists():
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("SELECT id, name FROM playlists")
+    c.execute("SELECT name FROM playlists")
     rows = c.fetchall()
     conn.close()
     return [r[0] for r in rows]
@@ -107,7 +107,7 @@ def add_song_to_playlist(playlist_id, song_path):
 
     c.execute(
         """
-        INSET INTO playlist_songs
+        INSERT INTO playlist_songs
         (playlist_id, song_path)
         VALUES (?, ?)
         """,
