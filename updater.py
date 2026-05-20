@@ -26,3 +26,14 @@ class Updater:
         except Exception as e:
             print(f"Error fetching latest release: {e}")
             return None
+        
+    def update_avaliable(self):
+        latest = self.get_latest_release()
+        if not latest:
+            return False, None
+        
+        latest_version = latest["version"]
+
+        if version.parse(latest_version) > version.parse(APP_VERSION):
+            return True, latest
+        return False, None
