@@ -143,6 +143,7 @@ class MusicUI(QWidget):
         self.setLayout(root)
         self.apply_theme()
         self.load_library()
+        self.load_playlists()
 
     def load_library(self):
         self.songs = []
@@ -241,6 +242,12 @@ class MusicUI(QWidget):
         secs = seconds % 60
 
         return f"{mins}:{secs:02}"
+    
+    def load_playlists(self):
+        self.playlists.clear()
+
+        for playlist in get_playlists():
+            self.playlists.addItem(playlist)
     
     def apply_view_mode(self):
         mode = get_view_mode()
