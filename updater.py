@@ -37,3 +37,11 @@ class Updater:
         if version.parse(latest_version) > version.parse(APP_VERSION):
             return True, latest
         return False, None
+    
+    def get_exe_asset(self, release_data):
+        for asset in release_data["assets"]:
+            name = asset["name"].lower()
+
+            if name.endswith(".exe"):
+                return asset["browser_download_url"]
+        return None
