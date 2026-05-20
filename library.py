@@ -125,7 +125,7 @@ def get_playlist_songs(playlist):
     SELECT song.path, songs.title, songs.artist,
               songs.album, songs.cover
     FROM songs
-    JOIN playlsit_songs
+    JOIN playlist_songs
     ON songs.path = playlist_songs.song_path
     JOIN playlists
     ON playlists.id = playlist_spngs.playlist_id
