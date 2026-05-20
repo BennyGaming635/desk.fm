@@ -41,6 +41,11 @@ def add_song(path, title, artist, album, cover):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
 
+    cover = cover if cover and os.path.exists(cover) else None
+
+    if cover is None:
+        cover = ""
+
     c.execute("""
         INSERT OR IGNORE INTO songs (path, title, artist, album, cover)
         VALUES (?, ?, ?, ?, ?)
@@ -89,30 +94,26 @@ def get_playlists():
     conn.close()
     return [r[0] for r in rows]
 
-def add_song_to_playlist(playlist_id, song_path):
+def add_song_to_playlist(playlist_name, song_path):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
 
     c.execute(
         "SELECT id FROM playlists WHERE name=?",
-        (playlist_id,)
+        (playlist_name,)
     )
-    result = c.fetchone()
 
+    result = c.fetchone()
     if not result:
         conn.close()
         return
-    
-    playlist_id = result[0]
 
-    c.execute(
-        """
-        INSERT INTO playlist_songs
-        (playlist_id, song_path)
+    pid = result[0]
+
+    c.execute("""
+        INSERT INTO playlist_songs (playlist_id, song_path)
         VALUES (?, ?)
-        """,
-        (playlist_id, song_path)
-    )
+    """, (pid, song_path))
 
     conn.commit()
     conn.close()
@@ -122,13 +123,13 @@ def get_playlist_songs(playlist):
     c = conn.cursor()
 
     c.execute("""
-    SELECT song.path, songs.title, songs.artist,
-              songs.album, songs.cover
+    SELECT songs.path, songs.title, songs.artist,
+           songs.album, songs.cover
     FROM songs
     JOIN playlist_songs
-    ON songs.path = playlist_songs.song_path
+        ON songs.path = playlist_songs.song_path
     JOIN playlists
-    ON playlists.id = playlist_spngs.playlist_id
+        ON playlists.id = playlist_songs.playlist_id
     WHERE playlists.name = ?
     """, (playlist,))
 
