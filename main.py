@@ -1,8 +1,8 @@
 import sys
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QSystemTrayIcon, QMenu
 from player import MusicPlayer
 from ui import MusicUI
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QAction
 from settings import check_github_update
 from library import init_db
 
