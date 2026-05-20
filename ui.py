@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QPushButton, QListWidget, QLabel,
     QFileDialog, QSlider, QListWidgetItem,
     QDialog, QSizePolicy, QLineEdit,
-    QMenu
+    QMenu, QInputDialog
 )
 from PySide6.QtCore import Qt, QSize, QTimer
 from utils import extract_cover_image, get_song_metadata
@@ -95,6 +95,19 @@ class MusicUI(QWidget):
         self.btn_queue.setFixedSize(30, 30)
         self.btn_queue.clicked.connect(self.toggle_queue)
         self.sidebar.addWidget(self.btn_queue, alignment=Qt.AlignLeft)
+        self.btn_new_playlist = QPushButton()
+        self.btn_new_playlist.setIcon(QIcon("assets/icons/playlist.svg"))
+        self.btn_new_playlist.setIconSize(QSize(28, 28))
+        self.btn_new_playlist.setFixedSize(30, 30)
+        self.btn_new_playlist.clicked.connect(self.create_playlist_ui)
+        self.sidebar.addWidget(self.btn_new_playlist, alignment=Qt.AlignLeft)
+
+        self.playlist_label = QLabel("Playlists")
+        self.sidebar.addWidget(self.playlist_label, alignment=Qt.AlignLeft)
+        self.playlists = QListWidget()
+        self.playlists.itemClicked.connect(self.open_playlist)
+        self.sidebar.addWidget(self.playlists)
+
 
         self.btn_play.setIconSize(QSize(28, 28))
         self.btn_pause.setIconSize(QSize(28, 28))
