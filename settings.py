@@ -123,6 +123,15 @@ class SettingsDialog(QDialog):
         else:
             self.label.setText("No updates available")
 
+    def install_update(self):
+        updater = Updater()
+        success, message = updater.install_update()
+
+        if success:
+            self.label.setText("Update installed successfully")
+        else:
+            self.label.setText(f"Update failed: {message}")
+
 
 def get_view_mode():
     config = load_config()
