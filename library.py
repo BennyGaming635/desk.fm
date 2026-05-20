@@ -116,5 +116,24 @@ def add_song_to_playlist(playlist_id, song_path):
 
     conn.commit()
     conn.close()
-    
+
+def get_playlist_songs(playlist):
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+
+    c.execute("""
+    SELECT song.path, songs.title, songs.artist,
+              songs.album, songs.cover
+    FROM songs
+    JOIN playlsit_songs
+    ON songs.path = playlist_songs.song_path
+    JOIN playlists
+    ON playlists.id = playlist_spngs.playlist_id
+    WHERE playlists.name = ?
+    """, (playlist,))
+
+    rows = c.fetchall()
+    conn.close()
+    return rows
+
 
