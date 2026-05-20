@@ -248,6 +248,13 @@ class MusicUI(QWidget):
 
         for playlist in get_playlists():
             self.playlists.addItem(playlist)
+
+    def create_playlist_ui(self):
+        name, ok = QInputDialog.getText(self, "New Playlist", "Enter playlist name:")
+
+        if ok and name:
+            create_playlist(name)
+            self.load_playlists()
     
     def apply_view_mode(self):
         mode = get_view_mode()
