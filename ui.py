@@ -255,7 +255,28 @@ class MusicUI(QWidget):
         if ok and name:
             create_playlist(name)
             self.load_playlists()
-    
+
+    def open_playlist(self, item):
+        playlist = item.text()
+
+        self.songs = []
+        self.list_widget.clear()
+
+        rows = get_playlist_songs(playlist)
+
+        for path, title, artist, album, cover in rows:
+            self.songs.append({
+                "path": path,
+                "name": title,
+                "cover": cover
+            })
+
+            song_item = QListWidgetItem(title)
+            if cover:
+                song_item.setIcon(QIcon(cover))
+
+            self.list_widget.addItem(song_item)
+
     def apply_view_mode(self):
         mode = get_view_mode()
 
