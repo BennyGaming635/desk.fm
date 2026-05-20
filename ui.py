@@ -66,6 +66,7 @@ class MusicUI(QWidget):
         self.now_playing.setStyleSheet("font-size: 18px;")
 
         self.list_widget = QListWidget()
+        self.list_widget.setIconSize(QSize(48, 48))
         self.list_widget.itemClicked.connect(self.play_selected)
         self.apply_view_mode()
 
