@@ -5,6 +5,7 @@ from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QLabel, QPushButton,
     QComboBox
 )
+from updater import Updater
 
 CONFIG_FILE = "config.json"
 
@@ -112,12 +113,16 @@ class SettingsDialog(QDialog):
         self.accept()
 
     def check_update(self):
-        update = check_github_update()
+        updater = Updater()
+        avaliable, release = updater.update_avaliable()
 
-        if update:
-            self.label.setText(f"Latest Version: {update['version']}")
+        if avaliable:
+            self.label.setText(
+                f"Update Available: {release['version']}"
+            )
         else:
-            self.label.setText("Could not check for updates")
+            self.label.setText("No updates available")
+
 
 def get_view_mode():
     config = load_config()
