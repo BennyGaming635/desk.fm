@@ -154,9 +154,7 @@ class MusicUI(QWidget):
         self.load_playlists()
 
     def load_library(self):
-        self.songs = []
         self.search_library("")
-        self.list_widget.clear()
 
         rows = get_all_songs()
 
@@ -257,7 +255,7 @@ class MusicUI(QWidget):
 
     def set_list_view(self):
         self.list_widget.setViewMode(QListWidget.ListMode)
-        self.list_widget.setIconSize(QSize(24, 24))
+        self.list_widget.setIconSize(QSize(48, 48))
         self.list_widget.setGridSize(QSize())
 
     def seek_position(self, value):
