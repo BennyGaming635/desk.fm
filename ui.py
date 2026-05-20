@@ -237,7 +237,10 @@ class MusicUI(QWidget):
                     "album": album,
                     "cover": cover
                 })
-                self.list_widget.addItem(title)
+                item = QListWidgetItem(title)
+                if cover and os.path.exists(cover):
+                    item.setIcon(QIcon(cover))
+                self.list_widget.addItem(item)
 
     def toggle_queue(self):
         self.queue_panel.setVisible(not self.queue_panel.isVisible())
@@ -355,7 +358,10 @@ class MusicUI(QWidget):
                 "cover": cover
             })
 
-            self.list_widget.addItem(title)
+            item = QListWidgetItem(title)
+            if cover and os.path.exists(cover):
+                item.setIcon(QIcon(cover))
+            self.list_widget.addItem(item)
 
             add_song(
                 f,
@@ -380,7 +386,7 @@ class MusicUI(QWidget):
         self.progress.setValue(0)
         self.current_time.setText("00:00")
 
-        if song["cover"]:
+        if song["cover"] and os.path.exists(song["cover"]):
             pixmap = QPixmap(song["cover"])
             self.cover.setPixmap(pixmap)
         else:
@@ -398,7 +404,7 @@ class MusicUI(QWidget):
             self.progress.setValue(0)
             self.current_time.setText("00:00")
 
-            if song["cover"]:
+            if song["cover"] and os.path.exists(song["cover"]):
                 pixmap = QPixmap(song["cover"])
                 self.cover.setPixmap(pixmap)
             else:
