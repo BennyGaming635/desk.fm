@@ -3,24 +3,34 @@ from mutagen.id3 import ID3, APIC
 from mutagen import File
 import os
 
-def extract_cover_image(audio_path):
-    audio = File(audio_path)
+def extract_cover_image(path):
+    audio = File(path)
 
     if not audio:
         return None
     
     try:
-        if "APIC:" in audio.tags:
-            art = audio.tags["APIC:"].data
+        tags = audio.tags
+        if not tags:
+            return None
+        
+        if "APIC:" in tags:
+            art = tags["APIC:"].data
+
+        elif "covr" in tags:
+            art = tags["covr"][0].data
+
         else:
             return None
         
-        cover_path = audio_path + "_cover.jpg"
-        with open(cover_path, "wb") as f:
-            f.write(art)
-        
+        cover_path = path + "_cover.jpg"
+        with open(cover_path, "wb") as img:
+            img.write(art)
+
         return cover_path
-    except Exception:
+    
+    except Exception as e:
+        print("Cover error:", e)
         return None
 
     
