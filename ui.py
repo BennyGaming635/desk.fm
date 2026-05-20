@@ -4,18 +4,25 @@ from PySide6.QtWidgets import (
     QPushButton, QListWidget, QLabel,
     QFileDialog, QSlider, QListWidgetItem,
     QDialog, QSizePolicy, QLineEdit,
-    QMenu
+    QMenu, QInputDialog
 )
 from PySide6.QtCore import Qt, QSize, QTimer
-from utils import extract_cover_image
+from utils import extract_cover_image, get_song_metadata
 import os
 import vlc
 from importwizard import ImportWizard
 from settings import (
     SettingsDialog, get_theme, get_view_mode
 )
-from library import add_song, get_all_songs
-
+from library import (
+    add_song,
+    get_all_songs,
+    remove_song,
+    create_playlist,
+    get_playlists,
+    add_song_to_playlist,
+    get_playlist_songs
+)
 
 class MusicUI(QWidget):
     def __init__(self, player):
@@ -59,6 +66,7 @@ class MusicUI(QWidget):
         self.now_playing.setStyleSheet("font-size: 18px;")
 
         self.list_widget = QListWidget()
+        self.list_widget.setIconSize(QSize(48, 48))
         self.list_widget.itemClicked.connect(self.play_selected)
         self.apply_view_mode()
 
@@ -95,6 +103,19 @@ class MusicUI(QWidget):
         self.btn_queue.setFixedSize(30, 30)
         self.btn_queue.clicked.connect(self.toggle_queue)
         self.sidebar.addWidget(self.btn_queue, alignment=Qt.AlignLeft)
+        self.btn_new_playlist = QPushButton()
+        self.btn_new_playlist.setIcon(QIcon("assets/icons/playlist.svg"))
+        self.btn_new_playlist.setIconSize(QSize(28, 28))
+        self.btn_new_playlist.setFixedSize(30, 30)
+        self.btn_new_playlist.clicked.connect(self.create_playlist_ui)
+        self.sidebar.addWidget(self.btn_new_playlist, alignment=Qt.AlignLeft)
+
+        self.playlist_label = QLabel("Playlists")
+        self.sidebar.addWidget(self.playlist_label, alignment=Qt.AlignLeft)
+        self.playlists = QListWidget()
+        self.playlists.itemClicked.connect(self.open_playlist)
+        self.sidebar.addWidget(self.playlists)
+
 
         self.btn_play.setIconSize(QSize(28, 28))
         self.btn_pause.setIconSize(QSize(28, 28))
@@ -130,11 +151,10 @@ class MusicUI(QWidget):
         self.setLayout(root)
         self.apply_theme()
         self.load_library()
+        self.load_playlists()
 
     def load_library(self):
-        self.songs = []
         self.search_library("")
-        self.list_widget.clear()
 
         rows = get_all_songs()
 
@@ -142,6 +162,8 @@ class MusicUI(QWidget):
             self.songs.append({
                 "path": path,
                 "name": title,
+                "artist": artist,
+                "album": album,
                 "cover": cover
             })
 
@@ -149,6 +171,12 @@ class MusicUI(QWidget):
             if cover:
                 item.setIcon(QIcon(cover))
             self.list_widget.addItem(item)
+
+    def remove_from_library(self, index):
+        song = self.songs[index]
+        remove_song(song["path"])
+        self.songs.pop(index)
+        self.list_widget.takeItem(index)
 
     def show_context_menu(self, pos):
         item = self.list_widget.itemAt(pos)
@@ -158,27 +186,60 @@ class MusicUI(QWidget):
         menu = QMenu()
 
         add_queue = menu.addAction("Add to Queue")
-        action = menu.exec(self.list_widget.mapToGlobal(pos))
+        remove_library = menu.addAction("Remove from Library")
+        add_playlist = menu.addAction("Add to Playlist")
+
+        action = menu.exec(self.list_widget.viewport().mapToGlobal(pos)
+        )
+
+        index = self.list_widget.row(item)
+        song = self.songs[index]
 
         if action == add_queue:
             index = self.list_widget.row(item)
             song = self.songs[index]
             self.add_to_queue(song)
 
+        elif action == remove_library:
+            self.remove_from_library(index)
+
+        elif action == add_playlist:
+            playlists = get_playlists()
+
+            playlist, ok = QInputDialog.getItem(
+                self,
+                "Add to Playlist",
+                "Playlist:",
+                playlists,
+                0,
+                False
+            )
+
+            if ok and playlist:
+                add_song_to_playlist(
+                    playlist,
+                    song["path"]
+                )
+
     def search_library(self, text):
         self.list_widget.clear()
         rows = get_all_songs()
         text = text.lower().strip()
         self.songs = []
-        for path, title, aartist, album, cover in rows:
-            haystack = f"{title} {aartist} {album}".lower()
+        for path, title, artist, album, cover in rows:
+            haystack = f"{title} {artist} {album}".lower()
             if text in haystack:
                 self.songs.append({
                     "path": path,
                     "name": title,
+                    "artist": artist,
+                    "album": album,
                     "cover": cover
                 })
-                self.list_widget.addItem(title)
+                item = QListWidgetItem(title)
+                if cover and os.path.exists(cover):
+                    item.setIcon(QIcon(cover))
+                self.list_widget.addItem(item)
 
     def toggle_queue(self):
         self.queue_panel.setVisible(not self.queue_panel.isVisible())
@@ -194,7 +255,7 @@ class MusicUI(QWidget):
 
     def set_list_view(self):
         self.list_widget.setViewMode(QListWidget.ListMode)
-        self.list_widget.setIconSize(QSize(24, 24))
+        self.list_widget.setIconSize(QSize(48, 48))
         self.list_widget.setGridSize(QSize())
 
     def seek_position(self, value):
@@ -210,6 +271,40 @@ class MusicUI(QWidget):
 
         return f"{mins}:{secs:02}"
     
+    def load_playlists(self):
+        self.playlists.clear()
+
+        for playlist in get_playlists():
+            self.playlists.addItem(playlist)
+
+    def create_playlist_ui(self):
+        name, ok = QInputDialog.getText(self, "New Playlist", "Enter playlist name:")
+
+        if ok and name:
+            create_playlist(name)
+            self.load_playlists()
+
+    def open_playlist(self, item):
+        playlist = item.text()
+
+        self.songs = []
+        self.list_widget.clear()
+
+        rows = get_playlist_songs(playlist)
+
+        for path, title, artist, album, cover in rows:
+            self.songs.append({
+                "path": path,
+                "name": title,
+                "cover": cover
+            })
+
+            song_item = QListWidgetItem(title)
+            if cover:
+                song_item.setIcon(QIcon(cover))
+
+            self.list_widget.addItem(song_item)
+
     def apply_view_mode(self):
         mode = get_view_mode()
 
@@ -251,7 +346,10 @@ class MusicUI(QWidget):
 
         for f in files:
             cover = extract_cover_image(f)
-            title = os.path.splitext(os.path.basename(f))[0]
+            metadata = get_song_metadata(f)
+            title = metadata["title"]
+            artist = metadata["artist"]
+            album = metadata["album"]
 
             self.songs.append({
                 "path": f,
@@ -259,13 +357,16 @@ class MusicUI(QWidget):
                 "cover": cover
             })
 
-            self.list_widget.addItem(title)
+            item = QListWidgetItem(title)
+            if cover and os.path.exists(cover):
+                item.setIcon(QIcon(cover))
+            self.list_widget.addItem(item)
 
             add_song(
                 f,
                 title,
-                "Unknown Artist",
-                "Unknown Album",
+                artist,
+                album,
                 cover
             )
 
@@ -284,7 +385,7 @@ class MusicUI(QWidget):
         self.progress.setValue(0)
         self.current_time.setText("00:00")
 
-        if song["cover"]:
+        if song["cover"] and os.path.exists(song["cover"]):
             pixmap = QPixmap(song["cover"])
             self.cover.setPixmap(pixmap)
         else:
@@ -302,7 +403,7 @@ class MusicUI(QWidget):
             self.progress.setValue(0)
             self.current_time.setText("00:00")
 
-            if song["cover"]:
+            if song["cover"] and os.path.exists(song["cover"]):
                 pixmap = QPixmap(song["cover"])
                 self.cover.setPixmap(pixmap)
             else:
