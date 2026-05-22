@@ -29,6 +29,7 @@ class MusicUI(QWidget):
     def __init__(self, player):
         super().__init__()
         self.player = player
+        self.setAcceptDrops(True)
 
         self.setWindowTitle("DeskFM")
         self.setMinimumSize(900, 600)
@@ -193,6 +194,52 @@ class MusicUI(QWidget):
                 item.setIcon(QIcon(cover))
 
         self.list_widget.addItem(item)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+    
+    def dropEvent(self, event):
+        files = []
+
+        for url in event.mimeData().urls():
+            path = url.toLocalFile()
+
+            if path.lower().endswith((".mp3", ".flac", ".wav", ".m4a")):
+                files.append(path)
+
+        for f in files:
+            cover = extract_cover_image(f)
+            metadata = get_song_metadata(f)
+
+            title = metadata["title"]
+            artist = metadata["artist"]
+            album = metadata["album"]
+
+            self.songs.append({
+                "path": f,
+                "name": title,
+                "artist": artist,
+                "album": album,
+                "cover": cover
+            })
+
+            item = QListWidgetItem(title)
+
+            if cover and os.path.exists(cover):
+                item.setIcon(QIcon(cover))
+
+            self.list_widget.addItem(item)
+
+            add_song(
+                f,
+                title,
+                artist,
+                album,
+                cover
+            )
+
+        event.acceptProposedAction()
 
     def remove_from_library(self, index):
         song = self.songs[index]
