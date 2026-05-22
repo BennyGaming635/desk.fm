@@ -113,7 +113,7 @@ class MusicUI(QWidget):
         self.btn_library.setIcon(QIcon("assets/icons/library.svg"))
         self.btn_library.setIconSize(QSize(28, 28))
         self.btn_library.setFixedSize(30, 30)
-        self.btn_library.clicked.connect(self.load_library)
+        self.btn_library.clicked.connect(self.home)
         self.sidebar.addWidget(self.btn_library, alignment=Qt.AlignLeft)
 
         self.playlist_label = QLabel("Playlists")
@@ -159,9 +159,13 @@ class MusicUI(QWidget):
         self.load_library()
         self.load_playlists()
 
+    def home(self):
+        self.search_library("")
+
     def load_library(self):
         self.search_bar.clear()
-        self.search_library("")
+        self.songs = []
+        self.list_widget.clear()
 
         rows = get_all_songs()
 
@@ -175,9 +179,11 @@ class MusicUI(QWidget):
             })
 
             item = QListWidgetItem(title)
-            if cover:
+
+            if cover and os.path.exists(cover):
                 item.setIcon(QIcon(cover))
-            self.list_widget.addItem(item)
+
+        self.list_widget.addItem(item)
 
     def remove_from_library(self, index):
         song = self.songs[index]
