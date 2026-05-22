@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
 from updater import Updater
 
 CONFIG_FILE = "config.json"
+APP_VERSION = "1.0.0"
 
 THEMES = {
     "Classic Green": {
@@ -25,7 +26,8 @@ def load_config():
     if not os.path.exists(CONFIG_FILE):
         return {"theme": "Classic Green",
                 "view_mode": "List View",
-                "crossfade": 0
+                "crossfade": 0,
+                "lastseenversion": ""
         }
 
     with open(CONFIG_FILE, "r") as f:
