@@ -205,8 +205,21 @@ class MusicUI(QWidget):
         for url in event.mimeData().urls():
             path = url.toLocalFile()
 
-            if path.lower().endswith((".mp3", ".flac", ".wav", ".m4a")):
-                files.append(path)
+            if os.path.isdir(path):
+                for root, dirs, filenames in os.walk(path):
+                    for file in filenames:
+                        if file.lower().endswith(
+                            (".mp3", ".flac", ".wav", ".ogg")
+                        ):
+                            files.append(
+                                os.path.join(root, file)
+                            )
+
+            else:
+                if path.lower().endswith(
+                    (".mp3", ".flac", ".wav", ".ogg")
+                ):
+                    files.append(path)
 
         for f in files:
             cover = extract_cover_image(f)
