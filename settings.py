@@ -123,10 +123,6 @@ class SettingsDialog(QDialog):
         })
         self.accept()
 
-    def get_crossfade():
-        config = load_config()
-        return config.get("crossfade", 0)
-
     def check_update(self):
         updater = Updater()
         avaliable, release = updater.update_avaliable()
@@ -151,3 +147,7 @@ class SettingsDialog(QDialog):
 def get_view_mode():
     config = load_config()
     return config.get("view_mode", "List View")
+
+def get_crossfade():
+        config = load_config()
+        return config.get("crossfade", 0)

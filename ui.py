@@ -12,7 +12,7 @@ import os
 import vlc
 from importwizard import ImportWizard
 from settings import (
-    SettingsDialog, get_theme, get_view_mode
+    SettingsDialog, get_theme, get_view_mode, get_crossfade
 )
 from library import (
     add_song,
@@ -445,8 +445,24 @@ class MusicUI(QWidget):
             song = self.queue.pop(0)
             self.queue_panel.takeItem(0)
 
-            self.player.load(song["path"])
-            QTimer.singleShot(100, self.player.play)
+            fade = get_crossfade()
+            if fade > 0 and self.player.player:
+                for i in range(fade, -1, -1):
+                    QTimer.singleShot(
+                        (fade - i) * 100,
+                        lambda v=i: self.player.set_volume(int(v * 10))
+                    )
+
+                def start_next():
+                    self.player.load(song["path"])
+                    self.player.play()
+                    self.player.set_volume(100)
+
+                QTimer.singleShot(fade * 100, start_next)
+
+            else:
+                self.player.load(song["path"])
+                QTimer.singleShot(100, self.player.play)
 
             self.now_playing.setText(f"Now Playing: {song['name']}")
             self.progress.setValue(0)
@@ -464,6 +480,7 @@ class MusicUI(QWidget):
         next_index = current + 1
 
         if next_index < len(self.songs):
+            fade = get_crossfade()
             self.list_widget.setCurrentRow(next_index)
             self.progress.setValue(0)
             self.play_selected()
