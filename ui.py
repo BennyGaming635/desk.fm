@@ -32,6 +32,7 @@ class MusicUI(QWidget):
 
         self.setWindowTitle("DeskFM")
         self.setMinimumSize(900, 600)
+        self.current_volume = 80
 
         self.cover = QLabel()
         self.cover.setFixedSize(200, 200)
@@ -142,7 +143,7 @@ class MusicUI(QWidget):
         self.volume = QSlider(Qt.Horizontal)
         self.volume.setRange(0, 100)
         self.volume.setValue(80)
-        self.volume.valueChanged.connect(self.player.set_volume)
+        self.volume.valueChanged.connect(self.set_volume)
 
 
         self.current_time = QLabel("00:00")
@@ -198,6 +199,10 @@ class MusicUI(QWidget):
         remove_song(song["path"])
         self.songs.pop(index)
         self.list_widget.takeItem(index)
+
+    def set_volume(self, value):
+        self.current_volume = value
+        self.player.set_volume(value)
 
     def show_context_menu(self, pos):
         item = self.list_widget.itemAt(pos)
@@ -455,14 +460,15 @@ class MusicUI(QWidget):
 
                 def start_next():
                     self.player.load(song["path"])
-                    self.player.play()
-                    self.player.set_volume(100)
+                    QTimer.singleShot(100, self.player.play)
+                    QTimer.singleShot(150, lambda: self.player.set_volume(self.current_volume))
 
                 QTimer.singleShot(fade * 100, start_next)
 
             else:
                 self.player.load(song["path"])
                 QTimer.singleShot(100, self.player.play)
+                QTimer.singleShot(150, lambda: self.player.set_volume(self.current_volume))
 
             self.now_playing.setText(f"Now Playing: {song['name']}")
             self.progress.setValue(0)
