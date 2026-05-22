@@ -133,7 +133,7 @@ class MusicUI(QWidget):
 
         self.btn_play.clicked.connect(self.play_selected)
         self.btn_pause.clicked.connect(self.player.pause)
-        self.btn_next.clicked.connect(self.player.next)
+        self.btn_next.clicked.connect(self.next_song)
 
         self.btn_play.setStyleSheet("background-color: transparent;")
         self.btn_pause.setStyleSheet("background-color: transparent;")
