@@ -245,12 +245,24 @@ class MusicUI(QWidget):
         menu = QMenu()
 
         delete_action = menu.addAction("Delete Playlist")
+        queue_action = menu.addAction("Queue Playlist")
         action = menu.exec(self.playlists.viewport().mapToGlobal(pos))
 
         if action == delete_action:
             delete_playlist(item.text())
             self.load_playlists()
             self.home()
+
+        elif action == queue_action:
+            songs = get_playlist_songs(item.text())
+            for path, title, artist, album, cover in songs:
+                self.add_to_queue({
+                    "path": path,
+                    "name": title,
+                    "artist": artist,
+                    "album": album,
+                    "cover": cover
+                })
 
     def search_library(self, text):
         self.list_widget.clear()
