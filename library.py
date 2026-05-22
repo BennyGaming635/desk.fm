@@ -95,6 +95,29 @@ def get_playlists():
     conn.close()
     return [r[0] for r in rows]
 
+def delete_playlist(name):
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+
+    c.execute(
+        "SELECT id FROM playlists WHERE name=?",
+        (name,)
+    )
+    result = c.fetchone()
+
+    if result:
+        pid = result[0]
+        c.execute(
+            "DELETE FROM playlist_songs WHERE playlist_id=?",
+            (pid,)
+        )
+    c.execute(
+        "DELETE FROM playlists WHERE name=?",
+        (name,)
+    )
+    conn.commit()
+    conn.close()
+
 def add_song_to_playlist(playlist_name, song_path):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
