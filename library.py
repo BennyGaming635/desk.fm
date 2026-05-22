@@ -29,7 +29,8 @@ def init_db():
     c.execute("""
         CREATE TABLE IF NOT EXISTS playlist_songs (
             playlist_id INTEGER,
-            song_path TEXT
+            song_path TEXT,
+            UNIQUE(playlist_id, song_path)
         )
         """)
 
