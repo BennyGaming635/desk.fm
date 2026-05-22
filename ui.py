@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QPushButton, QListWidget, QLabel,
     QFileDialog, QSlider, QListWidgetItem,
     QDialog, QSizePolicy, QLineEdit,
-    QMenu, QInputDialog
+    QMenu, QInputDialog, QMessageBox
 )
 from PySide6.QtCore import Qt, QSize, QTimer
 from utils import extract_cover_image, get_song_metadata
@@ -12,7 +12,7 @@ import os
 import vlc
 from importwizard import ImportWizard
 from settings import (
-    SettingsDialog, get_theme, get_view_mode, get_crossfade
+    SettingsDialog, get_theme, get_view_mode, get_crossfade, APP_VERSION, should_shownew, mark_shownew
 )
 from library import (
     add_song,
@@ -168,6 +168,9 @@ class MusicUI(QWidget):
         self.apply_theme()
         self.load_library()
         self.load_playlists()
+        if should_shownew():
+            self.showwhatnew()
+            mark_shownew()
 
     def home(self):
         self.search_library("")
@@ -198,6 +201,24 @@ class MusicUI(QWidget):
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
+
+    def showwhatnew(self):
+        QMessageBox.information(
+            self,
+            f"Welcome to DeskFM {APP_VERSION}",
+            """
+    What's new?
+    - Drag and drop folder imports
+    - Folder importing
+    - Album artwork support
+    - Queue system
+    - Playlist management
+    - Multiple views
+    - Search improvements
+    
+    Thanks for using DeskFM.
+    """
+        )
     
     def dropEvent(self, event):
         files = []
