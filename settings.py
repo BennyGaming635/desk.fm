@@ -75,6 +75,11 @@ class SettingsDialog(QDialog):
         self.combo.setCurrentText(config.get("theme", "Classic Green"))
         self.view_combo.setCurrentText(config.get("view_mode", "List View"))
 
+        self.fade_label = QLabel("Crossfade (seconds)")
+        self.fade_combo = QComboBox()
+        self.fade_combo.addItems([str(i) for i in range(0, 11)])
+        self.fade_combo.setCurrentText(str(config.get("crossfade", 0)))
+
         self.save_btn = QPushButton("Save")
         self.install_btn = QPushButton("Install Updates")
 
@@ -85,6 +90,8 @@ class SettingsDialog(QDialog):
         layout.addWidget(self.combo)
         layout.addWidget(self.view_label)
         layout.addWidget(self.view_combo)
+        layout.addWidget(self.fade_label)
+        layout.addWidget(self.fade_combo)
         layout.addWidget(self.save_btn)
         layout.addWidget(self.install_btn)
 
@@ -111,7 +118,8 @@ class SettingsDialog(QDialog):
     def save(self):
         save_config({
             "theme": self.combo.currentText(),
-            "view_mode": self.view_combo.currentText()
+            "view_mode": self.view_combo.currentText(),
+            "crossfade": int(self.fade_combo.currentText())
         })
         self.accept()
 
