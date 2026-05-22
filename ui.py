@@ -82,9 +82,11 @@ class MusicUI(QWidget):
 
         self.btn_play = QPushButton()
         self.btn_pause = QPushButton()
+        self.btn_next = QPushButton()
 
         self.btn_pause.setIcon(QIcon("assets/icons/pause.svg"))
         self.btn_play.setIcon(QIcon("assets/icons/play.svg"))
+        self.btn_next.setIcon(QIcon("assets/icons/next.svg"))
 
         self.btn_settings = QPushButton()
         self.btn_settings.setIcon(QIcon("assets/icons/settings.svg"))
@@ -127,12 +129,15 @@ class MusicUI(QWidget):
 
         self.btn_play.setIconSize(QSize(28, 28))
         self.btn_pause.setIconSize(QSize(28, 28))
+        self.btn_next.setIconSize(QSize(28, 28))
 
         self.btn_play.clicked.connect(self.play_selected)
         self.btn_pause.clicked.connect(self.player.pause)
+        self.btn_next.clicked.connect(self.player.next)
 
         self.btn_play.setStyleSheet("background-color: transparent;")
         self.btn_pause.setStyleSheet("background-color: transparent;")
+        self.btn_next.setStyleSheet("background-color: transparent;")
 
         self.volume = QSlider(Qt.Horizontal)
         self.volume.setRange(0, 100)
@@ -148,6 +153,7 @@ class MusicUI(QWidget):
 
         controls.addWidget(self.btn_play)
         controls.addWidget(self.btn_pause)
+        controls.addWidget(self.btn_next)
         controls.addStretch()
         controls.addWidget(self.current_time)
         controls.addWidget(self.progress)
