@@ -115,6 +115,10 @@ class SettingsDialog(QDialog):
         })
         self.accept()
 
+    def get_crossfade():
+        config = load_config()
+        return config.get("crossfade", 0)
+
     def check_update(self):
         updater = Updater()
         avaliable, release = updater.update_avaliable()
