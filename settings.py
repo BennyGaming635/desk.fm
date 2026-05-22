@@ -153,3 +153,12 @@ def get_view_mode():
 def get_crossfade():
         config = load_config()
         return config.get("crossfade", 0)
+
+def should_shownew():
+    config = load_config()
+    return config.get("lastseenversion", "") != APP_VERSION
+
+def mark_shownew():
+    config = load_config()
+    config["lastseenversion"] = APP_VERSION
+    save_config(config)
