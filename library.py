@@ -112,7 +112,7 @@ def add_song_to_playlist(playlist_name, song_path):
     pid = result[0]
 
     c.execute("""
-        INSERT INTO playlist_songs (playlist_id, song_path)
+        INSERT OR IGNORE INTO playlist_songs (playlist_id, song_path)
         VALUES (?, ?)
     """, (pid, song_path))
 
