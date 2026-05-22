@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QPushButton, QListWidget, QLabel,
     QFileDialog, QSlider, QListWidgetItem,
     QDialog, QSizePolicy, QLineEdit,
-    QMenu, QInputDialog
+    QMenu, QInputDialog, QMessageBox
 )
 from PySide6.QtCore import Qt, QSize, QTimer
 from utils import extract_cover_image, get_song_metadata
@@ -12,7 +12,7 @@ import os
 import vlc
 from importwizard import ImportWizard
 from settings import (
-    SettingsDialog, get_theme, get_view_mode, get_crossfade
+    SettingsDialog, get_theme, get_view_mode, get_crossfade, APP_VERSION, should_shownew, mark_shownew
 )
 from library import (
     add_song,
@@ -29,6 +29,7 @@ class MusicUI(QWidget):
     def __init__(self, player):
         super().__init__()
         self.player = player
+        self.setAcceptDrops(True)
 
         self.setWindowTitle("DeskFM")
         self.setMinimumSize(900, 600)
@@ -167,6 +168,9 @@ class MusicUI(QWidget):
         self.apply_theme()
         self.load_library()
         self.load_playlists()
+        if should_shownew():
+            self.showwhatnew()
+            mark_shownew()
 
     def home(self):
         self.search_library("")
@@ -193,6 +197,83 @@ class MusicUI(QWidget):
                 item.setIcon(QIcon(cover))
 
         self.list_widget.addItem(item)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+
+    def showwhatnew(self):
+        QMessageBox.information(
+            self,
+            f"Welcome to DeskFM {APP_VERSION}",
+            """
+    What's new?
+    - Drag and drop folder imports
+    - Folder importing
+    - Album artwork support
+    - Queue system
+    - Playlist management
+    - Multiple views
+    - Search improvements
+    
+    Thanks for using DeskFM.
+    """
+        )
+    
+    def dropEvent(self, event):
+        files = []
+
+        for url in event.mimeData().urls():
+            path = url.toLocalFile()
+
+            if os.path.isdir(path):
+                for root, dirs, filenames in os.walk(path):
+                    for file in filenames:
+                        if file.lower().endswith(
+                            (".mp3", ".flac", ".wav", ".ogg")
+                        ):
+                            files.append(
+                                os.path.join(root, file)
+                            )
+
+            else:
+                if path.lower().endswith(
+                    (".mp3", ".flac", ".wav", ".ogg")
+                ):
+                    files.append(path)
+
+        for f in files:
+            cover = extract_cover_image(f)
+            metadata = get_song_metadata(f)
+
+            title = metadata["title"]
+            artist = metadata["artist"]
+            album = metadata["album"]
+
+            self.songs.append({
+                "path": f,
+                "name": title,
+                "artist": artist,
+                "album": album,
+                "cover": cover
+            })
+
+            item = QListWidgetItem(title)
+
+            if cover and os.path.exists(cover):
+                item.setIcon(QIcon(cover))
+
+            self.list_widget.addItem(item)
+
+            add_song(
+                f,
+                title,
+                artist,
+                album,
+                cover
+            )
+
+        event.acceptProposedAction()
 
     def remove_from_library(self, index):
         song = self.songs[index]
