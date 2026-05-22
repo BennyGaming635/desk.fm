@@ -109,6 +109,12 @@ class MusicUI(QWidget):
         self.btn_new_playlist.setFixedSize(30, 30)
         self.btn_new_playlist.clicked.connect(self.create_playlist_ui)
         self.sidebar.addWidget(self.btn_new_playlist, alignment=Qt.AlignLeft)
+        self.btn_library = QPushButton()
+        self.btn_library.setIcon(QIcon("assets/icons/library.svg"))
+        self.btn_library.setIconSize(QSize(28, 28))
+        self.btn_library.setFixedSize(30, 30)
+        self.btn_library.clicked.connect(self.load_library)
+        self.sidebar.addWidget(self.btn_library, alignment=Qt.AlignLeft)
 
         self.playlist_label = QLabel("Playlists")
         self.sidebar.addWidget(self.playlist_label, alignment=Qt.AlignLeft)
@@ -154,6 +160,7 @@ class MusicUI(QWidget):
         self.load_playlists()
 
     def load_library(self):
+        self.search_bar.clear()
         self.search_library("")
 
         rows = get_all_songs()
