@@ -23,7 +23,10 @@ THEMES = {
 
 def load_config():
     if not os.path.exists(CONFIG_FILE):
-        return {"theme": "Classic Green"}
+        return {"theme": "Classic Green",
+                "view_mode": "List View",
+                "crossfade": 0
+        }
 
     with open(CONFIG_FILE, "r") as f:
         return json.load(f)
