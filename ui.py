@@ -12,7 +12,7 @@ import os
 import vlc
 from importwizard import ImportWizard
 from settings import (
-    SettingsDialog, get_theme, get_view_mode
+    SettingsDialog, get_theme, get_view_mode, get_crossfade
 )
 from library import (
     add_song,
@@ -21,7 +21,8 @@ from library import (
     create_playlist,
     get_playlists,
     add_song_to_playlist,
-    get_playlist_songs
+    get_playlist_songs,
+    delete_playlist
 )
 
 class MusicUI(QWidget):
@@ -31,6 +32,7 @@ class MusicUI(QWidget):
 
         self.setWindowTitle("DeskFM")
         self.setMinimumSize(900, 600)
+        self.current_volume = 80
 
         self.cover = QLabel()
         self.cover.setFixedSize(200, 200)
@@ -81,9 +83,11 @@ class MusicUI(QWidget):
 
         self.btn_play = QPushButton()
         self.btn_pause = QPushButton()
+        self.btn_next = QPushButton()
 
         self.btn_pause.setIcon(QIcon("assets/icons/pause.svg"))
         self.btn_play.setIcon(QIcon("assets/icons/play.svg"))
+        self.btn_next.setIcon(QIcon("assets/icons/next.svg"))
 
         self.btn_settings = QPushButton()
         self.btn_settings.setIcon(QIcon("assets/icons/settings.svg"))
@@ -109,27 +113,37 @@ class MusicUI(QWidget):
         self.btn_new_playlist.setFixedSize(30, 30)
         self.btn_new_playlist.clicked.connect(self.create_playlist_ui)
         self.sidebar.addWidget(self.btn_new_playlist, alignment=Qt.AlignLeft)
+        self.btn_library = QPushButton()
+        self.btn_library.setIcon(QIcon("assets/icons/library.svg"))
+        self.btn_library.setIconSize(QSize(28, 28))
+        self.btn_library.setFixedSize(30, 30)
+        self.btn_library.clicked.connect(self.home)
+        self.sidebar.addWidget(self.btn_library, alignment=Qt.AlignLeft)
 
         self.playlist_label = QLabel("Playlists")
         self.sidebar.addWidget(self.playlist_label, alignment=Qt.AlignLeft)
         self.playlists = QListWidget()
         self.playlists.itemClicked.connect(self.open_playlist)
         self.sidebar.addWidget(self.playlists)
-
+        self.playlists.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.playlists.customContextMenuRequested.connect(self.show_playlist_menu)
 
         self.btn_play.setIconSize(QSize(28, 28))
         self.btn_pause.setIconSize(QSize(28, 28))
+        self.btn_next.setIconSize(QSize(28, 28))
 
         self.btn_play.clicked.connect(self.play_selected)
         self.btn_pause.clicked.connect(self.player.pause)
+        self.btn_next.clicked.connect(self.next_song)
 
         self.btn_play.setStyleSheet("background-color: transparent;")
         self.btn_pause.setStyleSheet("background-color: transparent;")
+        self.btn_next.setStyleSheet("background-color: transparent;")
 
         self.volume = QSlider(Qt.Horizontal)
         self.volume.setRange(0, 100)
         self.volume.setValue(80)
-        self.volume.valueChanged.connect(self.player.set_volume)
+        self.volume.valueChanged.connect(self.set_volume)
 
 
         self.current_time = QLabel("00:00")
@@ -140,6 +154,7 @@ class MusicUI(QWidget):
 
         controls.addWidget(self.btn_play)
         controls.addWidget(self.btn_pause)
+        controls.addWidget(self.btn_next)
         controls.addStretch()
         controls.addWidget(self.current_time)
         controls.addWidget(self.progress)
@@ -153,8 +168,13 @@ class MusicUI(QWidget):
         self.load_library()
         self.load_playlists()
 
-    def load_library(self):
+    def home(self):
         self.search_library("")
+
+    def load_library(self):
+        self.search_bar.clear()
+        self.songs = []
+        self.list_widget.clear()
 
         rows = get_all_songs()
 
@@ -168,15 +188,21 @@ class MusicUI(QWidget):
             })
 
             item = QListWidgetItem(title)
-            if cover:
+
+            if cover and os.path.exists(cover):
                 item.setIcon(QIcon(cover))
-            self.list_widget.addItem(item)
+
+        self.list_widget.addItem(item)
 
     def remove_from_library(self, index):
         song = self.songs[index]
         remove_song(song["path"])
         self.songs.pop(index)
         self.list_widget.takeItem(index)
+
+    def set_volume(self, value):
+        self.current_volume = value
+        self.player.set_volume(value)
 
     def show_context_menu(self, pos):
         item = self.list_widget.itemAt(pos)
@@ -220,6 +246,34 @@ class MusicUI(QWidget):
                     playlist,
                     song["path"]
                 )
+    
+    def show_playlist_menu(self, pos):
+        item = self.playlists.itemAt(pos)
+
+        if not item:
+            return
+        
+        menu = QMenu()
+
+        delete_action = menu.addAction("Delete Playlist")
+        queue_action = menu.addAction("Queue Playlist")
+        action = menu.exec(self.playlists.viewport().mapToGlobal(pos))
+
+        if action == delete_action:
+            delete_playlist(item.text())
+            self.load_playlists()
+            self.home()
+
+        elif action == queue_action:
+            songs = get_playlist_songs(item.text())
+            for path, title, artist, album, cover in songs:
+                self.add_to_queue({
+                    "path": path,
+                    "name": title,
+                    "artist": artist,
+                    "album": album,
+                    "cover": cover
+                })
 
     def search_library(self, text):
         self.list_widget.clear()
@@ -396,8 +450,25 @@ class MusicUI(QWidget):
             song = self.queue.pop(0)
             self.queue_panel.takeItem(0)
 
-            self.player.load(song["path"])
-            QTimer.singleShot(100, self.player.play)
+            fade = get_crossfade()
+            if fade > 0 and self.player.player:
+                for i in range(fade, -1, -1):
+                    QTimer.singleShot(
+                        (fade - i) * 100,
+                        lambda v=i: self.player.set_volume(int(v * 10))
+                    )
+
+                def start_next():
+                    self.player.load(song["path"])
+                    QTimer.singleShot(100, self.player.play)
+                    QTimer.singleShot(150, lambda: self.player.set_volume(self.current_volume))
+
+                QTimer.singleShot(fade * 100, start_next)
+
+            else:
+                self.player.load(song["path"])
+                QTimer.singleShot(100, self.player.play)
+                QTimer.singleShot(150, lambda: self.player.set_volume(self.current_volume))
 
             self.now_playing.setText(f"Now Playing: {song['name']}")
             self.progress.setValue(0)
@@ -415,6 +486,7 @@ class MusicUI(QWidget):
         next_index = current + 1
 
         if next_index < len(self.songs):
+            fade = get_crossfade()
             self.list_widget.setCurrentRow(next_index)
             self.progress.setValue(0)
             self.play_selected()
