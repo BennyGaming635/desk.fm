@@ -21,7 +21,8 @@ from library import (
     create_playlist,
     get_playlists,
     add_song_to_playlist,
-    get_playlist_songs
+    get_playlist_songs,
+    delete_playlist
 )
 
 class MusicUI(QWidget):
@@ -121,7 +122,8 @@ class MusicUI(QWidget):
         self.playlists = QListWidget()
         self.playlists.itemClicked.connect(self.open_playlist)
         self.sidebar.addWidget(self.playlists)
-
+        self.playlists.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.playlists.customContextMenuRequested.connect(self.show_playlist_menu)
 
         self.btn_play.setIconSize(QSize(28, 28))
         self.btn_pause.setIconSize(QSize(28, 28))
@@ -233,6 +235,22 @@ class MusicUI(QWidget):
                     playlist,
                     song["path"]
                 )
+    
+    def show_playlist_menu(self, pos):
+        item = self.playlists.itemAt(pos)
+
+        if not item:
+            return
+        
+        menu = QMenu()
+
+        delete_action = menu.addAction("Delete Playlist")
+        action = menu.exec(self.playlists.viewport().mapToGlobal(pos))
+
+        if action == delete_action:
+            delete_playlist(item.text())
+            self.load_playlists()
+            self.home()
 
     def search_library(self, text):
         self.list_widget.clear()
