@@ -1,6 +1,6 @@
 __pycache__
 config.json
 music.db
-/build
 /dist
+/build
 main.spec
