@@ -1,3 +1,5 @@
 Pyside6
 python-vlc
 sqlite3
+requests
+mutagen
