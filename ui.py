@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QMenu, QInputDialog, QMessageBox
 )
 from PySide6.QtCore import Qt, QSize, QTimer
+from main import resource_path
 from utils import extract_cover_image, get_song_metadata
 import os
 import vlc
@@ -86,36 +87,36 @@ class MusicUI(QWidget):
         self.btn_pause = QPushButton()
         self.btn_next = QPushButton()
 
-        self.btn_pause.setIcon(QIcon("assets/icons/pause.svg"))
-        self.btn_play.setIcon(QIcon("assets/icons/play.svg"))
-        self.btn_next.setIcon(QIcon("assets/icons/next.svg"))
+        self.btn_pause.setIcon(QIcon(resource_path("assets/icons/pause.svg")))
+        self.btn_play.setIcon(QIcon(resource_path("assets/icons/play.svg")))
+        self.btn_next.setIcon(QIcon(resource_path("assets/icons/next.svg")))
 
         self.btn_settings = QPushButton()
-        self.btn_settings.setIcon(QIcon("assets/icons/settings.svg"))
+        self.btn_settings.setIcon(QIcon(resource_path("assets/icons/settings.svg")))
         self.btn_settings.setIconSize(QSize(28, 28))
         self.btn_settings.setFixedSize(30, 30)
         self.btn_settings.clicked.connect(self.open_settings)
         self.sidebar.addWidget(self.btn_settings, alignment=Qt.AlignLeft)
         self.btn_load = QPushButton()
-        self.btn_load.setIcon(QIcon("assets/icons/import.svg"))
+        self.btn_load.setIcon(QIcon(resource_path("assets/icons/import.svg")))
         self.btn_load.setIconSize(QSize(28, 28))
         self.btn_load.setFixedSize(30, 30)
         self.btn_load.clicked.connect(self.load_songs)
         self.sidebar.addWidget(self.btn_load, alignment=Qt.AlignLeft)
         self.btn_queue = QPushButton()
-        self.btn_queue.setIcon(QIcon("assets/icons/queue.svg"))
+        self.btn_queue.setIcon(QIcon(resource_path("assets/icons/queue.svg")))
         self.btn_queue.setIconSize(QSize(28, 28))
         self.btn_queue.setFixedSize(30, 30)
         self.btn_queue.clicked.connect(self.toggle_queue)
         self.sidebar.addWidget(self.btn_queue, alignment=Qt.AlignLeft)
         self.btn_new_playlist = QPushButton()
-        self.btn_new_playlist.setIcon(QIcon("assets/icons/playlist.svg"))
+        self.btn_new_playlist.setIcon(QIcon(resource_path("assets/icons/playlist.svg")))
         self.btn_new_playlist.setIconSize(QSize(28, 28))
         self.btn_new_playlist.setFixedSize(30, 30)
         self.btn_new_playlist.clicked.connect(self.create_playlist_ui)
         self.sidebar.addWidget(self.btn_new_playlist, alignment=Qt.AlignLeft)
         self.btn_library = QPushButton()
-        self.btn_library.setIcon(QIcon("assets/icons/library.svg"))
+        self.btn_library.setIcon(QIcon(resource_path("assets/icons/library.svg")))
         self.btn_library.setIconSize(QSize(28, 28))
         self.btn_library.setFixedSize(30, 30)
         self.btn_library.clicked.connect(self.home)
@@ -208,13 +209,7 @@ class MusicUI(QWidget):
             f"Welcome to DeskFM {APP_VERSION}",
             """
     What's new?
-    - Drag and drop folder imports
-    - Folder importing
-    - Album artwork support
-    - Queue system
-    - Playlist management
-    - Multiple views
-    - Search improvements
+    - Bug fixes and performance improvements
     
     Thanks for using DeskFM.
     """

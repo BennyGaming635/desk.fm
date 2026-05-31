@@ -1,3 +1,4 @@
+import os
 import sys
 from PySide6.QtWidgets import QApplication, QMessageBox, QSystemTrayIcon, QMenu
 from player import MusicPlayer
@@ -13,12 +14,15 @@ def check_vlc():
         return True
     except Exception:
         return False
-
-
+    
+def resource_path(relative_path):
+    base = getattr(sys, "_MEIPASS", os.path.abspath("."))
+    return os.path.join(base, relative_path)
+    
 if __name__ == "__main__":
     init_db()
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon("assets/icon.png"))
+    app.setWindowIcon(QIcon(resource_path("assets/icon.png")))
     if not check_vlc():
         QMessageBox.critical(
             None,
@@ -32,7 +36,7 @@ if __name__ == "__main__":
     window.show()
 
     tray = QSystemTrayIcon()
-    tray.setIcon(QIcon("assets/icon.png"))
+    tray.setIcon(QIcon(resource_path("assets/icon.png")))
     tray.setVisible(True)
     tray_menu = QMenu()
     show_action = QAction("Show")
