@@ -7,9 +7,9 @@ from PySide6.QtWidgets import (
     QMenu, QInputDialog, QMessageBox
 )
 from PySide6.QtCore import Qt, QSize, QTimer
-from main import resource_path
 from utils import extract_cover_image, get_song_metadata
 import os
+import sys
 import vlc
 from importwizard import ImportWizard
 from settings import (
@@ -25,6 +25,11 @@ from library import (
     get_playlist_songs,
     delete_playlist
 )
+
+
+def resource_path(relative_path):
+    base_path = getattr(sys, "_MEIPASS", os.path.abspath("."))
+    return os.path.join(base_path, relative_path)
 
 class MusicUI(QWidget):
     def __init__(self, player):
