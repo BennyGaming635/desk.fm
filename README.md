@@ -17,12 +17,5 @@ or so. But DeskFM should prompt you to update if there is a new version avalaibl
 
 ## Installing
 
-For now, I haven't made a compiled version, but simply just run
-```python
-pip install -r requirements.txt
-```
-and that should install all the requirements. Then you can just run
-```python
-python main.py
-```
-and then DeskFM should open. If it dosen't then please make an issue and I'll fix it.
+There is now a compiled version avaliable via GitHub Releases. Use that one.
+Also **YOU MUST HAVE VLC INSTALLED ON YOUR DEVICE!!!**
