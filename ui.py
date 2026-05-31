@@ -196,7 +196,7 @@ class MusicUI(QWidget):
             if cover and os.path.exists(cover):
                 item.setIcon(QIcon(cover))
 
-        self.list_widget.addItem(item)
+            self.list_widget.addItem(item)
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
