@@ -1,9 +1,22 @@
+import os
+import sys
 import vlc
+
+if getattr(sys, "frozen", False):
+    base = sys.MEIPASS
+    os.environ["VLC_PLUGIN_PATH"] = os.path.join(base, "plugins")
+
+    instance = vlc.Instance(
+        f"--plugin-path={os.path.join(base, 'plugins')}"
+    )
+
+else:
+    instance = vlc.Instance()
 
 class MusicPlayer:
     def __init__(self):
         self.vlc = vlc
-        self.instance = vlc.Instance()
+        self.instance = instance
         self.player = self.instance.media_player_new()
         self.media = None
 
