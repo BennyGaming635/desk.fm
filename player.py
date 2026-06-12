@@ -3,7 +3,7 @@ import sys
 import vlc
 
 if getattr(sys, "frozen", False):
-    base = sys.MEIPASS
+    base = sys._MEIPASS
     os.environ["VLC_PLUGIN_PATH"] = os.path.join(base, "plugins")
 
     instance = vlc.Instance(
